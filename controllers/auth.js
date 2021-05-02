@@ -3,7 +3,7 @@ const expressJwt = require("express-jwt");
 
 const { validationResult } = require("express-validator");
 
-const User = require("../models/User");
+const { User } = require("../models/User");
 const Agency = require("../models/Agency");
 
 ///  User Auth
@@ -61,7 +61,7 @@ exports.signup = (req, res) => {
 };
 
 exports.signin = (req, res) => {
-	const { email: userName, password } = req.body;
+	const { userName, password } = req.body;
 
 	const errors = validationResult(req);
 
@@ -91,7 +91,7 @@ exports.signin = (req, res) => {
 
 		if (!user.authenticate(password)) {
 			return res.status(401).json({
-				error: "UserName and Password do not match",
+				error: "UserName or Password do not match",
 			});
 		}
 
@@ -207,7 +207,7 @@ exports.agencySignin = (req, res) => {
 
 		if (!agency.authenticate(password)) {
 			return res.status(401).json({
-				error: "Email and Password do not match",
+				error: "Email or Password do not match",
 				msg: err,
 			});
 		}

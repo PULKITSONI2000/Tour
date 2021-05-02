@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
-const uuidv1 = require("uuid/v1");
+const { v1 } = require("uuid");
 const { ObjectId } = mongoose.Schema;
 
 /// MessageSchema
@@ -23,7 +23,7 @@ const inboxSchema = new mongoose.Schema(
 	},
 	{ timestamps: true }
 );
-module.exports = inboxSchema;
+// module.exports = inboxSchema;
 // module.exports = mongoose.model("Inbox", inboxSchema);
 
 const userSchema = new mongoose.Schema(
@@ -123,7 +123,7 @@ userSchema
 	.virtual("password")
 	.set(function (password) {
 		this._password = password;
-		this.salt = uuidv1();
+		this.salt = v1();
 		this.encry_password = this.securePassword(password); //password is plainpassword
 	})
 	.get(function () {
@@ -147,5 +147,5 @@ userSchema.methods = {
 		}
 	},
 };
-
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = { User, inboxSchema };

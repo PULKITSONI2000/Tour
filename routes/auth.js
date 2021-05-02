@@ -18,11 +18,11 @@ router.post(
 	// if error occur go to docs or use
 	//   .withMessage('must be at least 5 chars long') after is length
 	[
-		check("userName", "firstName should be of 3 character").isLength({
+		check("userName", "User Name should be of 3 character").isLength({
 			min: 3,
 			max: 64,
 		}),
-		check("firstName", "firstName should be of 3 character").isLength({
+		check("firstName", "First Name should be of 3 character").isLength({
 			min: 3,
 			max: 32,
 		}),
@@ -48,7 +48,7 @@ router.post(
 router.post(
 	"/signin",
 	[
-		check("userName", "firstName should be of 3 character").isLength({
+		check("userName", "userName should be of 3 character").isLength({
 			min: 3,
 			max: 64,
 		}),
@@ -70,9 +70,11 @@ router.post(
 			min: 3,
 			max: 64,
 		}),
-		check("userAvatarUrl", "userAvatarUrl should be a url").isURL().isLength({
-			min: 3,
-		}),
+		check("agencyAvatarUrl", "agencyAvatarUrl should be a url")
+			.isURL()
+			.isLength({
+				min: 3,
+			}),
 		check("email", "Email is required").isEmail().normalizeEmail(),
 		check("password", "Password should be at least 6 char").isLength({
 			min: 6,

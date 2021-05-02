@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
-const uuidv1 = require("uuid/v1");
+const { v1 } = require("uuid");
 const { ObjectId } = mongoose.Schema;
 const { inboxSchema } = require("./User");
 
@@ -82,7 +82,6 @@ let agencySchema = new mongoose.Schema(
 		},
 		agencyOverview: {
 			type: String,
-			required: true,
 			maxlength: 1024,
 		},
 		email: {
@@ -114,7 +113,7 @@ let agencySchema = new mongoose.Schema(
 			trim: true,
 		},
 		city: {
-			type: Sting,
+			type: String,
 			maxlength: 64,
 			trim: true,
 		},
@@ -162,7 +161,7 @@ agencySchema
 	.virtual("password")
 	.set(function (password) {
 		this._password = password;
-		this.salt = uuidv1();
+		this.salt = v1();
 		this.encry_password = this.securePassword(password); //password is plainpassword
 	})
 	.get(function () {
