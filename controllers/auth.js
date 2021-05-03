@@ -12,7 +12,8 @@ exports.signup = (req, res) => {
 
 	if (!errors.isEmpty()) {
 		return res.status(422).json({
-			error: errors.array()[0].msg,
+			error: errors.array(),
+			// error: errors.array()[0].msg,
 		});
 	}
 
@@ -67,7 +68,8 @@ exports.signin = (req, res) => {
 
 	if (!errors.isEmpty()) {
 		return res.status(422).json({
-			error: errors.array()[0].msg,
+			error: errors.array(),
+			// error: errors.array()[0].msg,
 		});
 	}
 
@@ -140,7 +142,7 @@ exports.agencySignup = (req, res) => {
 
 	if (!errors.isEmpty()) {
 		return res.status(422).json({
-			error: errors.array()[0].msg,
+			error: errors.array(),
 		});
 	}
 
@@ -188,7 +190,8 @@ exports.agencySignin = (req, res) => {
 
 	if (!errors.isEmpty()) {
 		return res.status(422).json({
-			error: errors.array()[0].msg,
+			error: errors.array(),
+			// error: errors.array()[0].msg,
 		});
 	}
 
@@ -261,7 +264,7 @@ exports.isSignedIn = expressJwt({
 
 // authenticate means you can change your profile
 exports.isAuthenticated = (req, res, next) => {
-	let chacker = req.profile && req.auth && req.profile._id === req.auth._id;
+	let chacker = req.profile && req.auth && req.profile._id == req.auth._id;
 	//   req.profile -> which we created in :userId params
 	if (!chacker) {
 		return res.status(403).json({

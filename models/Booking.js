@@ -42,11 +42,11 @@ const BookingSchema = new mongoose.Schema(
 		},
 		tourId: {
 			type: ObjectId,
-			ref: "Agency",
+			ref: "Tour",
 			required: true,
 		},
 	},
 	{ timestamps: true }
 );
 
-module.exports = mongoose.model("Booking", OrderSchema);
+module.exports = mongoose.model("Booking", BookingSchema);

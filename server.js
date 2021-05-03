@@ -13,8 +13,10 @@ const connectDB = require("./config/database");
 /// Load config
 dotenv.config({ path: "./config/config.env" });
 
+// TODO:
 /// load Routes
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
 
 /// starting app
 const app = express();
@@ -28,8 +30,10 @@ app.use(express.json()); // replacement for body parser as body parser is deprec
 app.use(cookieParser());
 app.use(cors()); // cors are used to cross origen resource share // must be added
 
+// TODO:
 /// Routes
 app.use("/api", authRoutes);
+app.use("/api", userRoutes);
 
 /// Logging
 if (process.env.NODE_ENV === "development") {

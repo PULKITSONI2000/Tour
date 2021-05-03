@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const { v1 } = require("uuid");
 const { ObjectId } = mongoose.Schema;
 
-/// MessageSchema
+// MessageSchema
 const inboxSchema = new mongoose.Schema(
 	{
 		title: {
@@ -15,7 +15,6 @@ const inboxSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 			maxlength: 1024,
-			trim: true,
 		},
 		// dateTime: {
 		// 	default: Date,
@@ -28,7 +27,7 @@ const inboxSchema = new mongoose.Schema(
 
 const userSchema = new mongoose.Schema(
 	{
-		/// complex fields
+		// complex fields
 		inboxNotification: [inboxSchema],
 		bookingHistory: [
 			{
@@ -37,7 +36,7 @@ const userSchema = new mongoose.Schema(
 			},
 		],
 
-		/// normal fields
+		// normal fields
 
 		userName: {
 			type: String,
@@ -75,11 +74,10 @@ const userSchema = new mongoose.Schema(
 			trim: true,
 		},
 
-		/// address
+		// address
 		address: {
 			type: String,
 			maxlength: 128,
-			trim: true,
 		},
 		city: {
 			type: String,
@@ -107,7 +105,7 @@ const userSchema = new mongoose.Schema(
 			type: Date,
 		},
 
-		/// Secure fields
+		// Secure fields
 
 		encry_password: {
 			type: String,
