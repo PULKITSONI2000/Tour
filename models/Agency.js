@@ -17,6 +17,16 @@ const reviewSchema = new mongoose.Schema(
 			maxlength: 1024,
 			trim: true,
 		},
+		stars: {
+			type: Number,
+			validate: [
+				(val) => {
+					return val >= 1 && val <= 5;
+				},
+				// here if this callback return false then validate error is raised
+				"{PATH},exceed the limit of 5 stars",
+			],
+		},
 		// dateTime: {
 		// 	default: Date,
 		// },
@@ -59,8 +69,8 @@ let agencySchema = new mongoose.Schema(
 				ref: "Tour",
 			},
 		],
-
-		reviews: [reviewSchema],
+		/// Thinking About removing Agency reviews
+		// reviews: [reviewSchema],
 
 		agencyCertifications: [certificateSchema],
 

@@ -302,7 +302,7 @@ exports.getAgencyInbox = (req, res) => {
 };
 
 // Add Product in product list
-exports.updateAgencyTour = (req, res) => {
+exports.addAgencyTour = (req, res) => {
 	Agency.findOneAndUpdate(
 		{ _id: req.profile._id },
 		{ $push: { products: req.newTour._id } },
@@ -331,7 +331,9 @@ exports.removeAgencyTour = (req, res) => {
 				msg: err,
 			});
 		}
-		next();
+		return res.json({
+			msg: `${req.newTour.tourName} is Successfully removed from agency tourList`,
+		});
 	});
 };
 

@@ -35,7 +35,7 @@ const tourSchema = new mongoose.Schema(
 		},
 		location: {
 			type: String,
-			maxlength: 64,
+			maxlength: 128,
 		},
 		images: [
 			{

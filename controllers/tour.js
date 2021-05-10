@@ -238,10 +238,10 @@ exports.updateTour = (req, res) => {
 			}
 			// undefined values does not even shown up so it is best then assigning "" string
 			//   product.seller = undefined;
-			tour.review = undefined;
-			tour.createdAt = undefined;
-			tour.updatedAt = undefinedo;
-			res.json(tour);
+
+			res.json({
+				msg: `${tour.tourName} is Successfully updated`,
+			});
 		}
 	);
 };
@@ -260,7 +260,13 @@ exports.addTourReview = (req, res) => {
 	User.findByIdAndUpdate(
 		{ _id: req.tour._id },
 		{
-			$push: { review: { userId: req.profile._id, review: req.review } },
+			$push: {
+				review: {
+					userId: req.profile._id,
+					review: req.review,
+					stars: req.stars,
+				},
+			},
 		},
 		{ new: true },
 		(err, tour) => {
@@ -269,12 +275,14 @@ exports.addTourReview = (req, res) => {
 					error: "Unable to add review in review list",
 				});
 			}
-			return res.json({ msg: "review added Successfully" });
+			return res.json({
+				msg: `review added Successfully on ${tour.tourTitle}`,
+			});
 		}
 	);
 };
 
-//TODO: Add Review
+// Update No Of booking
 exports.updateNoOfBooking = (req, res, next) => {
 	User.findByIdAndUpdate(
 		{ _id: req.tour._id },
@@ -285,10 +293,13 @@ exports.updateNoOfBooking = (req, res, next) => {
 		(err, tour) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to add review in review list",
+					error: "Unable to update No Of Booking",
 				});
 			}
-			return res.json({ msg: "review added Successfully" });
+			res.noOfBooking({
+				msg: `${tour.tourTitle} Number of booking is Successfully updated`,
+			});
+			next();
 		}
 	);
 };

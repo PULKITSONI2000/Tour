@@ -127,7 +127,7 @@ router.post(
 			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
 
 			if (!checkForMongoDBId.test(value)) {
-				throw new Error("User Id should be Id");
+				throw new Error("User Id should be ObjectId");
 			}
 			// Indicates the success of this synchronous custom validator
 			return true;
