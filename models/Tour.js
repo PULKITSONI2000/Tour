@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const reviewSchema = require("./Agency");
+const { reviewSchema } = require("./Agency");
 
 const { ObjectId } = mongoose.Schema;
 

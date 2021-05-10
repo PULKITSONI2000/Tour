@@ -48,6 +48,7 @@ router.put(
 			.isString()
 			.isLength({
 				max: 8,
+				min: 4,
 			}),
 
 		check("dob", "Date of Birth should be in date format").trim().isDate(),

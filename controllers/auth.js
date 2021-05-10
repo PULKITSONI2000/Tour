@@ -6,7 +6,7 @@ const { validationResult } = require("express-validator");
 const { User } = require("../models/User");
 const Agency = require("../models/Agency");
 
-///  User Auth
+//  User Auth
 exports.signup = (req, res) => {
 	const errors = validationResult(req);
 
@@ -251,8 +251,8 @@ exports.agencySignout = (req, res) => {
 	});
 };
 
-/// custom middlewares
-/// protected routes
+// custom middlewares
+// protected routes
 
 // SignedIn means you can look around peofiles
 exports.isSignedIn = expressJwt({

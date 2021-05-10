@@ -23,7 +23,7 @@ const reviewSchema = new mongoose.Schema(
 	},
 	{ timestamps: true }
 );
-module.exports = reviewSchema;
+// module.exports = reviewSchema;
 // module.exports = mongoose.model("Inbox", reviewSchema);
 
 const certificateSchema = new mongoose.Schema(
@@ -39,7 +39,7 @@ const certificateSchema = new mongoose.Schema(
 		},
 		imageUrl: {
 			type: String,
-			default: "",
+			require: true,
 		},
 		// dateTime: {
 		// 	default: Date,
@@ -195,4 +195,5 @@ agencySchema.methods = {
 	},
 };
 
-module.exports = mongoose.model("Agency", agencySchema);
+const Agency = mongoose.model("Agency", agencySchema);
+module.exports = { Agency, reviewSchema };
