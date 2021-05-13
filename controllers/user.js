@@ -6,13 +6,13 @@ const { validationResult } = require("express-validator");
 exports.getUserById = (req, res, next, id) => {
 	// FIXME:
 	User.findById(id)
-		// .populate("bookingHistory")
-		// .populate("inboxNotification", "_id title updatedAt")
+		// .populate("bookingHistory", "_id")
+		.populate("inboxNotification", "_id title updatedAt")
 		.exec((err, user) => {
 			if (err || !user) {
 				return res.status(400).json({
-					error: "No user was found in DataBase",
-					msg: err,
+					msg: "No user was found in DataBase",
+					error: err,
 				});
 			}
 			req.profile = user;
@@ -49,8 +49,8 @@ exports.updateUser = (req, res) => {
 		(err, user) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to update the user in DataBase",
-					msg: err,
+					msg: "Unable to update the user in DataBase",
+					error: err,
 				});
 			}
 			user.salt = undefined; // undefined values does not even shown up so it is best then assigning "" string
@@ -82,20 +82,91 @@ exports.updateUserAvatar = (req, res) => {
 		(err, user) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to update the user in DataBase",
-					msg: err,
+					msg: "Unable to update the user in DataBase",
+					error: err,
 				});
 			}
-			// user.salt = undefined; // undefined values does not even shown up so it is best then assigning "" string
-			// user.encry_password = undefined;
-			// user.createdAt = undefined;
-			// user.updatedAt = undefined;
 			res.json({
 				msg: "Succeccfully Updated userAvatar",
 				userAvatarUrl: user.userAvatarUrl,
 			});
 		}
 	);
+};
+
+// update User Password
+exports.updateUserPassword = (req, res) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).json({
+			error: errors.array(),
+			// error: errors.array()[0].msg,
+		});
+	}
+
+	User.findById(req.profile._id).exec((err, user) => {
+		if (err || !user) {
+			return res.status(400).json({
+				msg: "Unable to find user in DataBase",
+				error: err,
+				user: typeof user,
+			});
+		}
+
+		// user.password = req.body.newPasswoed;
+		if (!user.authenticate(req.body.oldPassword)) {
+			return res.status(401).json({
+				msg: "Old Password did not match",
+			});
+		} else {
+			User.findByIdAndUpdate(
+				{ _id: user._id },
+				{ $set: { encry_password: user.securePassword(req.body.newPassword) } }, //update the fields
+				{ new: true },
+				// usefindAndModify: false
+				// compulsary parameter to pass when using .findByIdAndUpdate()
+				(err, user) => {
+					if (err) {
+						return res.status(400).json({
+							msg: "Unable to update user Password in DataBase",
+							error: err,
+						});
+					}
+					res.json({
+						msg: `${user.userName}, Succeccfully Updated Passwoed`,
+					});
+				}
+			);
+		}
+	});
+};
+
+// check for  UserName
+exports.checkforUserName = (req, res) => {
+	User.find({ userName: req.body.userName })
+		.select("_id userName userAvatarUrl")
+		.exec((err, user) => {
+			if (err) {
+				return res.status(400).json({
+					error: "Some error occur while finding userName in DataBase",
+					msg: err,
+				});
+			}
+			if (user.length === 0) {
+				return res.json({
+					msg: "UserName is Unique",
+					isUnique: 1,
+					user: typeof user,
+				});
+			}
+
+			return res.json({
+				msg: "UserName is already used",
+				isUnique: 0,
+				user: user,
+			});
+		});
 };
 
 // Booking

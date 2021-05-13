@@ -3,11 +3,14 @@ const express = require("express");
 const {
 	isSignedIn,
 	isAuthenticated,
-	isSellerVarified,
 	isAgencyVarified,
 } = require("../controllers/auth");
-const { check } = require("express-validator");
-const { getAgencyById, removeAgencyTour } = require("../controllers/agency");
+const { check, body } = require("express-validator");
+const {
+	getAgencyById,
+	removeAgencyTour,
+	addAgencyTour,
+} = require("../controllers/agency");
 const { getCategoryById } = require("../controllers/category");
 const {
 	getTourById,
@@ -20,6 +23,8 @@ const {
 	addTourReview,
 } = require("../controllers/tour");
 const router = express.Router();
+
+// TODO:  test all of them
 
 // all of params
 router.param("agencyId", getAgencyById);
@@ -35,13 +40,28 @@ router.get("/tours/:categoryId", getTourByCategory);
 // router.get("/products/name", getAllProductsName);
 // router.get("/search", getSearchProduct);
 
-// Create Route
+// Create Tour
 router.post(
 	"/tour/create/:agencyId",
 	isSignedIn,
 	isAuthenticated,
 	isAgencyVarified,
 	[
+		check("tourTitle", "tourTitle length should be in between 3 to 200")
+			.isString()
+			.isLength({
+				min: 3,
+				max: 200,
+			}),
+
+		check(
+			"tourOverview",
+			"tourOverview should be at least 6 char and at most of 2000"
+		).isLength({
+			min: 6,
+			max: 2000,
+		}),
+
 		body("providerAgency").custom((value) => {
 			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
 
@@ -51,21 +71,6 @@ router.post(
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
-		check(
-			"tourTitle",
-			"tourTitle length should be in between 3 to 200"
-		).isLength({
-			min: 3,
-			max: 200,
-		}),
-		check(
-			"tourOverview",
-			"tourOverview should be at least 6 char and at most of 2000"
-		).isLength({
-			min: 6,
-			max: 2000,
-		}),
-
 		// check("tourPrice", "tourPrice should be Numaric").isObject(),
 		body("tourPrice").custom((value) => {
 			if (value.adult <= 0) {
@@ -81,7 +86,7 @@ router.post(
 			return true;
 		}),
 
-		check("location", "Stock should be Numaric").isLength({
+		check("location", "Stock should be Numaric").isString().isLength({
 			min: 3,
 			max: 128,
 		}),
@@ -99,22 +104,24 @@ router.post(
 			return true;
 		}),
 		body("itinerary").custom((value) => {
-			if (!value.title.match(/^[A-Za-z\-\ \.]+$/)) {
-				throw new Error("title should String");
-			}
-			if (!value.description.match(/^[A-Za-z\-\ \.]+$/)) {
-				throw new Error("description should String");
-			}
-			if (!value.image.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
-				throw new Error("image should contain imageUrl");
-			}
+			value.forEach((i) => {
+				if (!i.title.match(/^[0-9A-Za-z\-\ \.\,]+$/)) {
+					throw new Error(`${i.title}, title should String`);
+				}
+				if (!i.description.match(/^[0-9A-Za-z\-\ \.\,]+$/)) {
+					throw new Error(`${i.description}, description should String`);
+				}
+				if (!i.image.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+					throw new Error(`${i.image}, image should contain imageUrl`);
+				}
+			});
 
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
 		body("highlights").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -124,7 +131,7 @@ router.post(
 		}),
 		body("included").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -134,7 +141,7 @@ router.post(
 		}),
 		body("excluded").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -144,7 +151,7 @@ router.post(
 		}),
 		body("languages").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,\(\)]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -165,24 +172,26 @@ router.post(
 		}),
 
 		body("coordinates").custom((value) => {
-			if (!value.let.match(/^[-]?[0-9]+\.[0-9]+$/)) {
-				throw new Error("lat should be geo Coordinate");
+			const checkForCoordinates = new RegExp("^[-]?[0-9]+.[0-9]+$");
+			if (!checkForCoordinates.test(value.long)) {
+				throw new Error(`${value.long}, long should be geo Coordinate`);
 			}
-			if (!value.long.match(/^[-]?[0-9]+\.[0-9]+$/)) {
-				throw new Error("long should be geo Coordinate");
+			if (!checkForCoordinates.test(value.lat)) {
+				throw new Error(`${value.lat}, lat should be geo Coordinate`);
 			}
-
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
 
 		body("faq").custom((value) => {
-			if (!value.q.match(/^[A-Za-z\-\ \'\"\?]+$/)) {
-				throw new Error("title should String");
-			}
-			if (!value.ans.match(/^[A-Za-z\-\ \.]+$/)) {
-				throw new Error("description should String");
-			}
+			value.forEach((f) => {
+				if (!f.q.match(/^[0-9A-Za-z\-\ \'\"\?\,]+$/)) {
+					throw new Error("title should String");
+				}
+				if (!f.ans.match(/^[0-9A-Za-z\-\ \.\,]+$/)) {
+					throw new Error("description should String");
+				}
+			});
 
 			// Indicates the success of this synchronous custom validator
 			return true;
@@ -209,7 +218,7 @@ router.post(
 	addAgencyTour
 );
 
-// delete Route
+// delete Tour
 router.delete(
 	"/tour/remove/:agencyId/:tourId",
 	isSignedIn,
@@ -219,22 +228,13 @@ router.delete(
 	removeTour,
 	removeAgencyTour
 );
-// update route
+// update Tour
 router.put(
-	"/product/update/:productId/:sellerId",
+	"/tour/update/:agencyId/:tourId",
 	isSignedIn,
 	isAuthenticated,
-	isSellerVarified,
+	isAgencyVarified,
 	[
-		body("providerAgency").custom((value) => {
-			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
-
-			if (!checkForMongoDBId.test(value)) {
-				throw new Error("providerAgencyId should be ObjectId");
-			}
-			// Indicates the success of this synchronous custom validator
-			return true;
-		}),
 		check("providerAgency", "providerAgency can not be change").isLength({
 			max: 0,
 		}),
@@ -286,22 +286,24 @@ router.put(
 			return true;
 		}),
 		body("itinerary").custom((value) => {
-			if (!value.title.match(/^[A-Za-z\-\ \.]+$/)) {
-				throw new Error("title should String");
-			}
-			if (!value.description.match(/^[A-Za-z\-\ \.]+$/)) {
-				throw new Error("description should String");
-			}
-			if (!value.image.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
-				throw new Error("image should contain imageUrl");
-			}
+			value.forEach((i) => {
+				if (!i.title.match(/^[0-9A-Za-z\-\ \.\,]+$/)) {
+					throw new Error(`${i.title}, title should String`);
+				}
+				if (!i.description.match(/^[0-9A-Za-z\-\ \.\,]+$/)) {
+					throw new Error(`${i.description}, description should String`);
+				}
+				if (!i.image.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+					throw new Error(`${i.image}, image should contain imageUrl`);
+				}
+			});
 
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
 		body("highlights").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -311,7 +313,7 @@ router.put(
 		}),
 		body("included").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -321,7 +323,7 @@ router.put(
 		}),
 		body("excluded").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -331,7 +333,7 @@ router.put(
 		}),
 		body("languages").custom((value) => {
 			value.forEach((h) => {
-				if (!h.match(/^[A-Za-z\-\ \.]+$/)) {
+				if (!h.match(/^[A-Za-z\-\ \.\,\(\)]+$/)) {
 					throw new Error(`${h} is not String`);
 				}
 			});
@@ -352,24 +354,26 @@ router.put(
 		}),
 
 		body("coordinates").custom((value) => {
-			if (!value.let.match(/^[-]?[0-9]+\.[0-9]+$/)) {
-				throw new Error("lat should be geo Coordinate");
+			const checkForCoordinates = new RegExp("^[-]?[0-9]+.[0-9]+$");
+			if (!checkForCoordinates.test(value.long)) {
+				throw new Error(`${value.long}, long should be geo Coordinate`);
 			}
-			if (!value.long.match(/^[-]?[0-9]+\.[0-9]+$/)) {
-				throw new Error("long should be geo Coordinate");
+			if (!checkForCoordinates.test(value.lat)) {
+				throw new Error(`${value.lat}, lat should be geo Coordinate`);
 			}
-
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
 
 		body("faq").custom((value) => {
-			if (!value.q.match(/^[A-Za-z\-\ \'\"\?]+$/)) {
-				throw new Error("title should String");
-			}
-			if (!value.ans.match(/^[A-Za-z\-\ \.]+$/)) {
-				throw new Error("description should String");
-			}
+			value.forEach((f) => {
+				if (!f.q.match(/^[0-9A-Za-z\-\ \'\"\?\,]+$/)) {
+					throw new Error("title should String");
+				}
+				if (!f.ans.match(/^[0-9A-Za-z\-\ \.\,]+$/)) {
+					throw new Error("description should String");
+				}
+			});
 
 			// Indicates the success of this synchronous custom validator
 			return true;

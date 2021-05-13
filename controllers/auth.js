@@ -4,7 +4,7 @@ const expressJwt = require("express-jwt");
 const { validationResult } = require("express-validator");
 
 const { User } = require("../models/User");
-const Agency = require("../models/Agency");
+const { Agency } = require("../models/Agency");
 
 //  User Auth
 exports.signup = (req, res) => {
@@ -22,8 +22,8 @@ exports.signup = (req, res) => {
 		(err, user) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Not able to save user in DataBase",
-					msg: err,
+					msg: "Not able to save user in DataBase",
+					error: err,
 					user: user,
 				});
 			}
@@ -82,18 +82,18 @@ exports.signin = (req, res) => {
 
 		if (err) {
 			return res.status(400).json({
-				error: "Unable to find user in DataBase",
-				msg: err,
+				msg: "Unable to find user in DataBase",
+				error: err,
 			});
 		} else if (!user) {
 			return res.status(400).json({
-				error: "UserName does not exists",
+				msg: "UserName does not exists",
 			});
 		}
 
 		if (!user.authenticate(password)) {
 			return res.status(401).json({
-				error: "UserName or Password do not match",
+				msg: "UserName or Password do not match",
 			});
 		}
 
@@ -104,15 +104,8 @@ exports.signin = (req, res) => {
 		res.cookie("token", token, { expire: new Date() + 30 });
 
 		// sent response to front end
-		const {
-			_id,
-			userName,
-			firstName,
-			lastName,
-			email,
-			phone,
-			userAvatarUrl,
-		} = user;
+		const { _id, userName, firstName, lastName, email, phone, userAvatarUrl } =
+			user;
 
 		return res.json({
 			token,
@@ -132,7 +125,7 @@ exports.signin = (req, res) => {
 exports.signout = (req, res) => {
 	res.clearCookie("token");
 	res.json({
-		message: "User Sign Out Successfully",
+		msg: "User Sign Out Successfully",
 	});
 };
 
@@ -151,8 +144,8 @@ exports.agencySignup = (req, res) => {
 	agency.save((err, agency) => {
 		if (err) {
 			return res.status(400).json({
-				error: "Not able to save agency in DataBase",
-				msg: err,
+				msg: "Not able to save agency in DataBase",
+				error: err,
 			});
 		}
 		const token = jwt.sign({ _id: agency.id }, process.env.SECRET); // this secret is use later to test isSignin
@@ -161,14 +154,8 @@ exports.agencySignup = (req, res) => {
 		res.cookie("token", token, { expire: new Date() + 30 });
 
 		// sent response to front end
-		const {
-			_id,
-			agencyName,
-			agencyAvatarUrl,
-			email,
-			phone,
-			isVarified,
-		} = agency;
+		const { _id, agencyName, agencyAvatarUrl, email, phone, isVarified } =
+			agency;
 		return res.json({
 			token,
 			agency: {
@@ -198,20 +185,20 @@ exports.agencySignin = (req, res) => {
 	Agency.findOne({ email }, (err, agency) => {
 		if (err) {
 			return res.status(400).json({
-				error: "Unable to find agency in DataBase",
-				msg: err,
+				msg: "Unable to find agency in DataBase",
+				error: err,
 			});
 		} else if (!agency) {
 			return res.status(400).json({
-				error: "Agency email does not exists",
-				msg: err,
+				msg: "Agency email does not found in Database",
+				error: "No Agency found",
 			});
 		}
 
 		if (!agency.authenticate(password)) {
 			return res.status(401).json({
-				error: "Email or Password do not match",
-				msg: err,
+				msg: "Email or Password do not match",
+				error: err,
 			});
 		}
 
@@ -222,14 +209,8 @@ exports.agencySignin = (req, res) => {
 		res.cookie("token", token, { expire: new Date() + 30 });
 
 		// sent response to front end
-		const {
-			_id,
-			agencyName,
-			agencyAvatarUrl,
-			email,
-			phone,
-			isVarified,
-		} = agency;
+		const { _id, agencyName, agencyAvatarUrl, email, phone, isVarified } =
+			agency;
 		return res.json({
 			token,
 			agency: {
@@ -247,7 +228,7 @@ exports.agencySignin = (req, res) => {
 exports.agencySignout = (req, res) => {
 	res.clearCookie("token");
 	res.json({
-		message: "Agency Sign Out Successfully",
+		msg: "Agency Sign Out Successfully",
 	});
 };
 
@@ -286,7 +267,7 @@ exports.isAgencyVarified = (req, res, next) => {
 };
 
 exports.isAdmin = (req, res, next) => {
-	if (req.profile.role === 0) {
+	if (req.profile.role !== 100) {
 		return res.status(403).json({
 			error: "Access Denied, You are not Admin",
 		});

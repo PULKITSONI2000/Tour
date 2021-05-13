@@ -9,8 +9,11 @@ const {
 	addUserBooking,
 	getUserInbox,
 	addUserInbox,
+	updateUserAvatar,
+	updateUserPassword,
+	checkforUserName,
 } = require("../controllers/user");
-const { isSignedIn, isAuthenticated, isAdmin } = require("../controllers/auth");
+const { isSignedIn, isAuthenticated } = require("../controllers/auth");
 const { check, body } = require("express-validator");
 
 // param
@@ -38,18 +41,27 @@ router.put(
 			min: 2,
 			max: 32,
 		}),
-		check("userAvatarUrl", "userAvatarUrl should be a url").isURL().isLength({
-			min: 3,
+		body("userAvatarUrl").custom((value) => {
+			if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+				throw new Error(`${value} is not a imageURL`);
+			}
+
+			// Indicates the success of this synchronous custom validator
+			return true;
 		}),
 		check("password", "Password can not be update here").isLength({
 			max: 0,
 		}),
-		check("gender", "Gender should be at Most 8 char and String")
-			.isString()
-			.isLength({
-				max: 8,
-				min: 4,
-			}),
+		body("gender").custom((value) => {
+			if (!value.match(/^(male|female|others)$/gi)) {
+				throw new Error(
+					`${value} is not a valid format (valid formats are - male, female or others)`
+				);
+			}
+
+			// Indicates the success of this synchronous custom validator
+			return true;
+		}),
 
 		check("dob", "Date of Birth should be in date format").trim().isDate(),
 		check("email", "Email is required").isEmail().normalizeEmail(),
@@ -77,6 +89,56 @@ router.put(
 	updateUser
 );
 
+// Updete User Avatar
+router.put(
+	"/user/update/avatar/:userId",
+	isSignedIn,
+	isAuthenticated,
+	[
+		body("userAvatarUrl").custom((value) => {
+			if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+				throw new Error(`${value} is not a imageURL`);
+			}
+
+			// Indicates the success of this synchronous custom validator
+			return true;
+		}),
+		check("password", "Password can not be update here").isLength({
+			max: 0,
+		}),
+	],
+	updateUserAvatar
+);
+
+// Updete User Password
+router.put(
+	"/user/update/password/:userId",
+	isSignedIn,
+	isAuthenticated,
+	[
+		check("oldPassword", "Old Password should be at least 6 char").isLength({
+			min: 6,
+		}),
+		check("newPassword", "New Password should be at least 6 char").isLength({
+			min: 6,
+		}),
+	],
+	updateUserPassword
+);
+
+// check for userName
+router.get(
+	"/user/check/username/:userId",
+	isSignedIn,
+	[
+		check("userName", "User Name should be of 3 character").isLength({
+			min: 3,
+			max: 64,
+		}),
+	],
+	checkforUserName
+);
+
 // Booking
 //  TODO: Test both
 
@@ -93,7 +155,17 @@ router.post(
 	"/user/booking/add/:userId",
 	isSignedIn,
 	isAuthenticated,
-	[check("booking", "Product Id should be Id").isUUID()],
+	[
+		body("booking").custom((value) => {
+			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
+
+			if (!checkForMongoDBId.test(value)) {
+				throw new Error("booking Id should be ObjectId");
+			}
+			// Indicates the success of this synchronous custom validator
+			return true;
+		}),
+	],
 	// TODO: create boolong midelware
 	addUserBooking
 );

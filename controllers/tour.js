@@ -20,69 +20,59 @@ exports.getTourById = (req, res, next, id) => {
 
 // Get Product
 exports.getTour = (req, res) => {
+	if (req.tour === null) {
+		return res.status(400).json({
+			error: "tour not found",
+		});
+	}
 	return res.json(req.tour);
 };
 
 // Get all Product
-exports.getAllTours = (req, res) => {
+exports.getAllTours = async (req, res) => {
 	let limit = req.query.limit ? parseInt(req.query.limit) : 10; // in major languages querry is passed in string format
-	let skip = req.query.skip ? parseInt(req.query.skip) : 0; // im major languages querry is passed in string format
-	let maxPrice = req.query.maxPrice ? parseInt(req.query.maxPrice) : 9999999999; // im major languages querry is passed in string format
-	let minPrice = req.query.maxPrice ? parseInt(req.query.maxPrice) : 0; // im major languages querry is passed in string format
+	let skip = req.query.skip ? parseInt(req.query.skip) : 0; // default is 0
+	let maxPrice = req.query.maxPrice ? parseInt(req.query.maxPrice) : 9999999999;
+	let minPrice = req.query.minPrice ? parseInt(req.query.minPrice) : 0;
 	let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
 	let order = req.query.order ? req.query.order : "desc";
-	let category = req.query.category ? req.query.category : "";
+	let category = req.query.category ? req.query.category : false;
+	let languages = req.query.languages ? req.query.languages : false;
 
-	if (category) {
-		Tour.find({
-			$and: [
-				{
-					tourPrice: { adult: { $gte: minPrice } },
-					tourPrice: { adult: { $lte: maxPrice } },
-				},
-			],
-			category: req.category,
-		})
-			// .select("name price stock photo offer color size seller") // '-' to remove that field
-			.populate("providerAgency", "_id agencyName agencyAvatarUrl")
-			.populate("category", "_id categoryName categoryImageUrl")
-			.sort([[sortBy, order]]) // for sorting
-			.skip(skip)
-			.limit(limit)
-			.exec((err, tour) => {
-				if (err) {
-					return res.status(400).json({
-						error: "No tour found",
-					});
-				}
-				tour.imageUrl = tour.images[0];
-				tour.images = undefined;
-				res.json(tour);
+	let findConditions = {};
+
+	languages.length > 0 && (findConditions["languages"] = { $in: languages });
+	category.length > 0 && (findConditions["category"] = { $in: category });
+
+	console.log(findConditions);
+	await Tour.find({
+		...findConditions,
+		$and: [
+			{ "tourPrice.adult": { $lte: maxPrice } },
+			{ "tourPrice.adult": { $gte: minPrice } },
+		],
+	})
+		.select(
+			"_id tourTitle tourPrice location images languages category noOfBooking tourDuration providerAgency"
+		)
+		.populate("providerAgency", "_id agencyName")
+		.populate("category", "_id categoryName")
+		.sort([[sortBy, order]])
+		.skip(skip)
+		.limit(limit)
+		.exec((err, tours) => {
+			if (err || tours.length === 0) {
+				return res.status(400).json({
+					msg: "No tour found",
+					err: err,
+				});
+			}
+			tours.forEach((tour) => {
+				tour.images = tour.images[0];
 			});
-	} else {
-		Tour.find({
-			$and: [
-				{
-					tourPrice: { adult: { $gte: minPrice } },
-					tourPrice: { adult: { $lte: maxPrice } },
-				},
-			],
-		})
-			// .select("name price stock photo offer color size seller") // '-' to remove that field
-			.populate("providerAgency", "_id agencyName agencyAvatarUrl")
-			.populate("category", "_id categoryName categoryImageUrl")
-			.sort([[sortBy, order]]) // for sorting
-			.skip(skip)
-			.limit(limit)
-			.exec((err, tour) => {
-				if (err) {
-					return res.status(400).json({
-						error: "No tour found",
-					});
-				}
-				res.json(tour);
-			});
-	}
+
+			res.json(tours);
+		});
 };
 
 // Get Search Product
@@ -152,25 +142,6 @@ exports.getTourByCategory = (req, res) => {
 		});
 };
 
-// Get All active category // can be used under nav bar
-// exports.getAllUniqueCategories = (req, res) => {
-// 	Tour.distinct(
-// 		"category",
-// 		{
-// 			/* clicks: {$gt: 100} // condition  */
-// 		},
-// 		(err, category) => {
-// 			if (err) {
-// 				return res.status(400).json({
-// 					error: "NO category found",
-// 					msg: err,
-// 				});
-// 			}
-// 			res.json(category);
-// 		}
-// 	);
-// };
-
 // Create Product
 exports.createTour = (req, res, next) => {
 	const errors = validationResult(req);
@@ -191,7 +162,7 @@ exports.createTour = (req, res, next) => {
 		}
 		req.newTour = {
 			_id: tour._id,
-			tourName: tour.tourName,
+			tourTitle: tour.tourTitle,
 			// TODO:  add more id needed
 		};
 		next();
@@ -207,10 +178,10 @@ exports.removeTour = (req, res, next) => {
 				error: "Failed to remove the Tour",
 			});
 		}
-		res.removeTour({
+		req.removedTour = {
 			message: "Successfully remove",
-			removeTour: removeTour,
-		});
+			tourTitle: removeTour.tourTitle,
+		};
 		next();
 	});
 };
@@ -226,7 +197,7 @@ exports.updateTour = (req, res) => {
 	}
 
 	Tour.findByIdAndUpdate(
-		{ _id: req.product._id },
+		{ _id: req.tour._id },
 		{ $set: req.body }, //update the fields
 		{ new: true, usefindAndModify: false }, // compulsary parameter to pass when using .findByIdAndUpdate()
 		(err, tour) => {
@@ -240,7 +211,7 @@ exports.updateTour = (req, res) => {
 			//   product.seller = undefined;
 
 			res.json({
-				msg: `${tour.tourName} is Successfully updated`,
+				msg: `${tour.tourTitle} is Successfully updated`,
 			});
 		}
 	);
@@ -296,9 +267,9 @@ exports.updateNoOfBooking = (req, res, next) => {
 					error: "Unable to update No Of Booking",
 				});
 			}
-			res.noOfBooking({
+			req.noOfBooking = {
 				msg: `${tour.tourTitle} Number of booking is Successfully updated`,
-			});
+			};
 			next();
 		}
 	);

@@ -1,9 +1,10 @@
 const Category = require("../models/Category");
 const { validationResult } = require("express-validator");
+const Tour = require("../models/Tour");
 
 // param
-exports.getCategoryById = (req, res, next, id) => {
-	Category.findById(id).exec((err, category) => {
+exports.getCategoryById = async (req, res, next, id) => {
+	await Category.findById(id).exec((err, category) => {
 		if (err) {
 			return res.status(400).json({
 				error: "Category not found in DataBase",
@@ -15,7 +16,7 @@ exports.getCategoryById = (req, res, next, id) => {
 };
 
 // create a category
-exports.createCategory = (req, res) => {
+exports.createCategory = async (req, res) => {
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -24,10 +25,11 @@ exports.createCategory = (req, res) => {
 		});
 	}
 	const category = new Category(req.body);
-	category.save((err, category) => {
+	await category.save((err, category) => {
 		if (err) {
 			return res.status(400).json({
-				error: "Not able to save category in DataBase",
+				msg: "Not able to save category in DataBase",
+				err: err,
 			});
 		}
 		res.json({ category });
@@ -40,8 +42,8 @@ exports.getCategory = (req, res) => {
 };
 
 // get all category
-exports.getAllCategory = (req, res) => {
-	Category.find().exec((err, categories) => {
+exports.getAllCategory = async (req, res) => {
+	await Category.find().exec((err, categories) => {
 		if (err) {
 			return res.status(400).json({
 				error: "No Categories Found in DataBase",
@@ -52,7 +54,7 @@ exports.getAllCategory = (req, res) => {
 };
 
 // update a category
-exports.updateCategory = (req, res) => {
+exports.updateCategory = async (req, res) => {
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -61,7 +63,7 @@ exports.updateCategory = (req, res) => {
 		});
 	}
 
-	Category.findByIdAndUpdate(
+	await Category.findByIdAndUpdate(
 		{ _id: req.category._id },
 		{ $set: req.body }, //update the fields
 		{ new: true, usefindAndModify: false }, // compulsary parameter to pass when using .findByIdAndUpdate()
@@ -78,17 +80,46 @@ exports.updateCategory = (req, res) => {
 };
 
 // remove a category
-exports.removeCategory = (req, res) => {
+exports.removeCategory = async (req, res) => {
 	const category = req.category;
 
-	category.remove((err, category) => {
+	await category.remove((err, category) => {
 		if (err) {
 			return res.status(400).json({
-				error: `Failed to Delete ${req.category.categoryName} Category`, // can also use ` ` to write name of category
+				error: `Failed to Delete "${req.category.categoryName}" Category`, // can also use ` ` to write name of category
 			});
 		}
 		res.json({
-			message: `Successfull Deleted ${req.category.categoryName} Category`,
+			message: `Successfull Deleted "${category.categoryName}" Category`,
 		});
 	});
+};
+
+// Get All active category
+exports.getActiveCategories = async (req, res) => {
+	await Tour.distinct(
+		"category",
+		{
+			/* clicks: {$gt: 100} // condition  */
+		},
+		async (err, activeCategoryIds) => {
+			if (err) {
+				return res.status(400).json({
+					error: "No active category found",
+					msg: err,
+				});
+			}
+			await Category.find({ _id: { $in: activeCategoryIds } })
+				.select("_id categoryName categoryImageUrl")
+				.exec((error, category) => {
+					if (error) {
+						return res.status(400).json({
+							error: `categoriesId not found in categories`,
+							msg: err,
+						});
+					}
+					res.json(category);
+				});
+		}
+	);
 };

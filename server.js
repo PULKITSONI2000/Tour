@@ -10,32 +10,36 @@ const morgan = require("morgan"); //for logging for dev
 const path = require("path");
 const connectDB = require("./config/database");
 
-/// Load config
+// Load config
 dotenv.config({ path: "./config/config.env" });
 
 // TODO:
-/// load Routes
+// load Routes
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
+const tourRoutes = require("./routes/tour");
+const categoryRoutes = require("./routes/category");
 
-/// starting app
+// starting app
 const app = express();
 
-/// database
+// database
 connectDB();
 
-/// Middlewares
+// Middlewares
 // app.use(bodyParser.json()); //bodyParser is used in post request to fetch data from req.body
 app.use(express.json()); // replacement for body parser as body parser is deprecated
 app.use(cookieParser());
 app.use(cors()); // cors are used to cross origen resource share // must be added
 
 // TODO:
-/// Routes
+// Routes
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
+app.use("/api", tourRoutes);
+app.use("/api", categoryRoutes);
 
-/// Logging
+// Logging
 if (process.env.NODE_ENV === "development") {
 	app.use(morgan("dev"));
 }
@@ -49,7 +53,7 @@ if (process.env.NODE_ENV === "production") {
 	});
 }
 
-/// Starting server
+// Starting server
 const PORT = process.env.PORT || 5000;
 
 app.listen(

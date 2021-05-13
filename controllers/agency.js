@@ -1,4 +1,4 @@
-const { Agency } = require("../models/Agency");
+const { Agency, reviewSchema } = require("../models/Agency");
 const { validationResult } = require("express-validator");
 
 // param
@@ -8,8 +8,8 @@ exports.getAgencyById = (req, res, next, id) => {
 		.exec((err, agency) => {
 			if (err || !agency) {
 				return res.status(400).json({
-					error: "No Agecny was found in DataBase",
-					msg: err,
+					msg: "No Agecny was found in DataBase",
+					error: err,
 				});
 			}
 			req.profile = agency;
@@ -27,13 +27,13 @@ exports.getAgency = (req, res) => {
 	return res.json(req.profile);
 };
 
-// Get All Seller
+// Get All Agencyes for Users
 exports.getAllAgencies = (req, res) => {
 	Agency.find({ isVarified: 1 }).exec((err, agency) => {
 		if (err || !agency) {
 			return res.status(400).json({
-				error: "No agencies are found in DataBase",
-				msg: err,
+				msg: "No agencies are found in DataBase",
+				error: err,
 			});
 		}
 		agency.forEach((agency) => {
@@ -51,7 +51,7 @@ exports.getAllAgencies = (req, res) => {
 	});
 };
 
-/// for admin
+// for admin
 
 // Get All Agency Details for Admin
 exports.getAllAgencyDetails = (req, res) => {
@@ -60,8 +60,8 @@ exports.getAllAgencyDetails = (req, res) => {
 		.exec((err, agency) => {
 			if (err || !agency) {
 				return res.status(400).json({
-					error: "No agencies are found in DataBase",
-					msg: err,
+					msg: "No agencies are found in DataBase",
+					error: err,
 				});
 			}
 			agency.forEach((agency) => {
@@ -93,19 +93,13 @@ exports.updateAgency = (req, res) => {
 		(err, agency) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to update the agency details in DataBase",
-					msg: err,
+					msg: "Unable to update the agency details in DataBase",
+					error: err,
 				});
 			}
-			// agency.salt = undefined; // undefined values does not even shown up so it is best then assigning "" string
-			// agency.encry_password = undefined;
-			// agency.createdAt = undefined;
-			// agency.updatedAt = undefined;
-			// agency.rating = undefined;
-			// agency.noOfRating = undefined;
-			// agency.notification = undefined;
-			// res.json(agency);
-			res.json({ msg: "Successfully updated agency detauls" });
+			res.json({
+				msg: `${agency.agencyName}, Successfully updated agency details`,
+			});
 		}
 	);
 };
@@ -130,20 +124,65 @@ exports.updateAgencyAvatar = (req, res) => {
 		(err, agency) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to update the agency avatar in DataBase",
-					msg: err,
+					msg: "Unable to update the agency avatar in DataBase",
+					error: err,
 				});
 			}
-			// user.salt = undefined; // undefined values does not even shown up so it is best then assigning "" string
-			// user.encry_password = undefined;
-			// user.createdAt = undefined;
-			// user.updatedAt = undefined;
 			res.json({
 				msg: "Succeccfully Updated userAvatar",
 				userAvatarUrl: agency.userAvatarUrl,
 			});
 		}
 	);
+};
+
+// update Agency Password
+exports.updateAgencyPassword = (req, res) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).json({
+			error: errors.array(),
+			// error: errors.array()[0].msg,
+		});
+	}
+
+	Agency.findById(req.profile._id).exec((err, agency) => {
+		if (err || !agency) {
+			return res.status(400).json({
+				msg: "Unable to find agency in DataBase",
+				error: err,
+				user: typeof agency,
+			});
+		}
+
+		if (!agency.authenticate(req.body.oldPassword)) {
+			return res.status(401).json({
+				msg: "Old Password did not match",
+			});
+		} else {
+			Agency.findByIdAndUpdate(
+				{ _id: agency._id },
+				{
+					$set: { encry_password: agency.securePassword(req.body.newPassword) },
+				}, //update the fields
+				{ new: true },
+				// usefindAndModify: false
+				// compulsary parameter to pass when using .findByIdAndUpdate()
+				(err, agency) => {
+					if (err) {
+						return res.status(400).json({
+							msg: "Unable to update agency Password in DataBase",
+							error: err,
+						});
+					}
+					res.json({
+						msg: `${agency.userName}, Succeccfully Updated Passwoed`,
+					});
+				}
+			);
+		}
+	});
 };
 
 // Varify Agency
@@ -163,16 +202,10 @@ exports.varifyAgency = (req, res) => {
 		(err, agency) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to varify Seller",
-					msg: err,
+					msg: "Unable to varify Seller",
+					error: err,
 				});
 			}
-			// agency.salt = undefined; // undefined values does not even shown up so it is best then assigning "" string
-			// agency.encry_password = undefined;
-			// agency.createdAt = undefined;
-			// agency.updatedAt = undefined;
-
-			// return res.json(agency);
 			return res.json({ msg: `Successfully Varify the ${agency.agencyName}` });
 		}
 	);
@@ -185,8 +218,8 @@ exports.getAgencyCertification = (req, res) => {
 	Agency.findById(req.profile._id).exec((err, agency) => {
 		if (err) {
 			return res.status(400).json({
-				error: "No Certification found in database",
-				msg: err,
+				msg: "No Certification found in database",
+				error: err,
 			});
 		}
 		return res.json(agency.agencyCertifications);
@@ -233,7 +266,8 @@ exports.removeAgencyCertification = (req, res) => {
 		(err, agency) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to remove certificate in Agency details",
+					msg: "Unable to remove certificate in Agency details",
+					error: err,
 				});
 			}
 			return res.json({
@@ -250,8 +284,8 @@ exports.getAgencyInbox = (req, res) => {
 	Agency.findById(req.profile._id).exec((err, agency) => {
 		if (err) {
 			return res.status(400).json({
-				error: "No inbox notification found in catabase",
-				msg: err,
+				msg: "No inbox notification found in catabase",
+				error: err,
 			});
 		}
 		return res.json(agency.inboxNotification);
@@ -274,7 +308,8 @@ exports.addAgencyInbox = (req, res) => {
 		(err, agency) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to Send notification to Agency",
+					msg: "Unable to Send notification to Agency",
+					error: err,
 				});
 			}
 			return res.json({
@@ -293,8 +328,8 @@ exports.getAgencyInbox = (req, res) => {
 		.exec((err, agency) => {
 			if (err) {
 				return res.status(400).json({
-					error: "No tour found in database",
-					msg: err,
+					msg: "No tour found in database",
+					error: err,
 				});
 			}
 			return res.json(agency.tourProvides);
@@ -305,16 +340,18 @@ exports.getAgencyInbox = (req, res) => {
 exports.addAgencyTour = (req, res) => {
 	Agency.findOneAndUpdate(
 		{ _id: req.profile._id },
-		{ $push: { products: req.newTour._id } },
+		{ $push: { tourProvides: req.newTour._id } },
 		{ new: true } // here {new: true} means send me back the updated one form DB not the old one
 	).exec((err, agency) => {
 		if (err) {
 			return res.status(400).json({
-				error: "Not able to save tour in agency tour list in DataBase",
-				msg: err,
+				msg: "Not able to save tour in agency tour list in DataBase",
+				error: err,
 			});
 		}
-		return res.json({ msg: `${req.newTour.tourName} is Successfully created` });
+		return res.json({
+			msg: `${req.newTour?.tourTitle}, is Successfully created`,
+		});
 	});
 };
 
@@ -322,17 +359,17 @@ exports.addAgencyTour = (req, res) => {
 exports.removeAgencyTour = (req, res) => {
 	Agency.findByIdAndUpdate(
 		{ _id: req.profile._id },
-		{ $pull: { products: req.tour._id } },
+		{ $pull: { tourProvides: req.tour._id } },
 		{ new: true, upsert: false, multi: true }
 	).exec((err, agency) => {
 		if (err) {
 			return res.status(400).json({
-				error: "Unable to remove tour form agency tourList",
-				msg: err,
+				msg: "Unable to remove tour form agency tourList",
+				error: err,
 			});
 		}
 		return res.json({
-			msg: `${req.newTour.tourName} is Successfully removed from agency tourList`,
+			msg: `${req.removedTour?.tourTitle} is Successfully removed`,
 		});
 	});
 };
@@ -349,8 +386,8 @@ exports.getAgencyBooking = (req, res) => {
 		.exec((err, agency) => {
 			if (err) {
 				return res.status(400).json({
-					error: "No Booking found in database",
-					msg: err,
+					msg: "No Booking found in database",
+					error: err,
 				});
 			}
 			return res.json(agency.bookings);
@@ -366,10 +403,13 @@ exports.addAgencyBooking = (req, res, next) => {
 	).exec((err, agency) => {
 		if (err) {
 			return res.status(400).json({
-				error: "Not able to save Booking in agency Booking list in DataBase",
-				msg: err,
+				msg: "Not able to save Booking in agency Booking list in DataBase",
+				error: err,
 			});
 		}
+		req.agencyBooking = {
+			msg: "successfully Added to agencyBooking",
+		};
 		next();
 	});
 };
