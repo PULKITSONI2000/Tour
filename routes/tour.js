@@ -15,7 +15,6 @@ const { getCategoryById } = require("../controllers/category");
 const {
 	getTourById,
 	getAllTours,
-	getTourByCategory,
 	createTour,
 	getTour,
 	removeTour,
@@ -34,7 +33,9 @@ router.param("categoryId", getCategoryById);
 // Get Route
 router.get("/tour/:tourId", getTour);
 router.get("/tours", getAllTours);
-router.get("/tours/:categoryId", getTourByCategory);
+
+/// can be done by getALLTours
+// router.get("/tours/:categoryId", getTourByCategory);
 
 // router.get("/tour/categories", getAllUniqueCategories);
 // router.get("/products/name", getAllProductsName);

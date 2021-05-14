@@ -103,9 +103,6 @@ router.put(
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
-		check("password", "Password can not be update here").isLength({
-			max: 0,
-		}),
 	],
 	updateUserAvatar
 );

@@ -129,7 +129,7 @@ exports.signout = (req, res) => {
 	});
 };
 
-//  Seller Auth
+//  Agency Auth
 exports.agencySignup = (req, res) => {
 	const errors = validationResult(req);
 
@@ -236,6 +236,9 @@ exports.agencySignout = (req, res) => {
 // protected routes
 
 // SignedIn means you can look around peofiles
+/**
+ * checks is user/ agency SignedIn
+ */
 exports.isSignedIn = expressJwt({
 	secret: process.env.SECRET,
 	algorithms: ["HS256"],
@@ -244,6 +247,10 @@ exports.isSignedIn = expressJwt({
 });
 
 // authenticate means you can change your profile
+/**
+ * checks for Authentication
+ * @requires param like :userId | :agencyId
+ */
 exports.isAuthenticated = (req, res, next) => {
 	let chacker = req.profile && req.auth && req.profile._id == req.auth._id;
 	//   req.profile -> which we created in :userId params
@@ -255,6 +262,10 @@ exports.isAuthenticated = (req, res, next) => {
 	next();
 };
 
+/**
+ * check for Agency Varification
+ * @requires isVarified === 1
+ */
 exports.isAgencyVarified = (req, res, next) => {
 	let chacker = req.profile && req.profile.isVarified === 1;
 	//   req.profile -> which we created in :userId params
@@ -266,6 +277,10 @@ exports.isAgencyVarified = (req, res, next) => {
 	next();
 };
 
+/**
+ * check for Admin
+ * @requires role === 100 for admin
+ */
 exports.isAdmin = (req, res, next) => {
 	if (req.profile.role !== 100) {
 		return res.status(403).json({

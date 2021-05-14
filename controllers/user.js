@@ -179,8 +179,8 @@ exports.getUserBooking = (req, res) => {
 		.exec((err, user) => {
 			if (err) {
 				return res.status(400).json({
-					error: "No Booking Found",
-					msg: err,
+					msg: "No Booking Found",
+					error: err,
 				});
 			}
 			return res.json(user.bookingHistory);
@@ -189,20 +189,22 @@ exports.getUserBooking = (req, res) => {
 
 // Add Booking
 
-exports.addUserBooking = (req, res) => {
+exports.addUserBooking = (req, res, next) => {
 	User.findByIdAndUpdate(
 		{ _id: req.profile._id },
 		{
-			$push: { bookingHistory: req.body.bookingId },
+			$push: { bookingHistory: req.newBooking._id },
 		},
 		{ new: true },
 		(err, user) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to Add Booking In bookingHistory list",
+					msg: "Unable to Add Booking In users bookingHistory list",
+					error: err,
 				});
 			}
-			return res.json({ msg: "Booking added Successfully" });
+			// return res.json({ msg: "Booking added Successfully" });
+			next();
 		}
 	);
 };
@@ -214,8 +216,8 @@ exports.getUserInbox = (req, res) => {
 	User.findById(req.profile._id).exec((err, user) => {
 		if (err) {
 			return res.status(400).json({
-				error: "No Inbox Notification found",
-				msg: err,
+				msg: "No Inbox Notification found",
+				error: err,
 			});
 		}
 		return res.json(user.inboxNotification);
@@ -244,7 +246,8 @@ exports.addUserInbox = (req, res) => {
 		(err, user) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to Send notification to User",
+					msg: "Unable to Send notification to User",
+					error: err,
 				});
 			}
 			return res.json({ msg: "Notification sended Successfully" });

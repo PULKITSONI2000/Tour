@@ -17,7 +17,9 @@ exports.getAgencyById = (req, res, next, id) => {
 		});
 };
 
-// Get User
+/**
+ * Get Agency details
+ */
 exports.getAgency = (req, res) => {
 	// undefined values does not even shown up so it is best then assigning "" string
 	req.profile.salt = undefined;
@@ -27,7 +29,9 @@ exports.getAgency = (req, res) => {
 	return res.json(req.profile);
 };
 
-// Get All Agencyes for Users
+/**
+ * Get All Agencyes for Users
+ */
 exports.getAllAgencies = (req, res) => {
 	Agency.find({ isVarified: 1 }).exec((err, agency) => {
 		if (err || !agency) {
@@ -51,9 +55,9 @@ exports.getAllAgencies = (req, res) => {
 	});
 };
 
-// for admin
-
-// Get All Agency Details for Admin
+/**
+ * Get All Agency Details for Admin
+ */
 exports.getAllAgencyDetails = (req, res) => {
 	Agency.find()
 		.sort([["isVarified", "asc"]])
@@ -75,7 +79,9 @@ exports.getAllAgencyDetails = (req, res) => {
 		});
 };
 
-// update Agency
+/**
+ * Update Agency details
+ */
 exports.updateAgency = (req, res) => {
 	const errors = validationResult(req);
 
@@ -104,7 +110,9 @@ exports.updateAgency = (req, res) => {
 	);
 };
 
-// update Agency avatar
+/**
+ *  update Agency avatar
+ */
 exports.updateAgencyAvatar = (req, res) => {
 	const errors = validationResult(req);
 
@@ -136,7 +144,9 @@ exports.updateAgencyAvatar = (req, res) => {
 	);
 };
 
-// update Agency Password
+/**
+ *  update Agency Password
+ */
 exports.updateAgencyPassword = (req, res) => {
 	const errors = validationResult(req);
 
@@ -185,7 +195,9 @@ exports.updateAgencyPassword = (req, res) => {
 	});
 };
 
-// Varify Agency
+/**
+ * Varify Agency
+ */
 exports.varifyAgency = (req, res) => {
 	const errors = validationResult(req);
 
@@ -213,8 +225,10 @@ exports.varifyAgency = (req, res) => {
 
 // agencyCertification
 
-// Get agencyCertification
-exports.getAgencyCertification = (req, res) => {
+/**
+ * Get agencyCertification
+ */
+exports.getAgencyCertificates = (req, res) => {
 	Agency.findById(req.profile._id).exec((err, agency) => {
 		if (err) {
 			return res.status(400).json({
@@ -226,7 +240,9 @@ exports.getAgencyCertification = (req, res) => {
 	});
 };
 
-// add agencyCertification
+/**
+ * add agencyCertification
+ */
 exports.addAgencyCertification = (req, res) => {
 	Agency.findOneAndUpdate(
 		{ _id: req.profile._Id },
@@ -247,13 +263,15 @@ exports.addAgencyCertification = (req, res) => {
 				});
 			}
 			return res.json({
-				msg: `${req.body.name}  is successfully added in Certifications`,
+				msg: `${req.body.name}, is successfully added in Certifications`,
 			});
 		}
 	);
 };
 
-// update agencyCertification
+/**
+ * remove agencyCertification
+ */
 exports.removeAgencyCertification = (req, res) => {
 	Agency.findOneAndUpdate(
 		{ _id: req.profile._Id },
@@ -271,7 +289,7 @@ exports.removeAgencyCertification = (req, res) => {
 				});
 			}
 			return res.json({
-				msg: `${req.body.name}  is successfully remove from Certifications`,
+				msg: `${req.body.certificate.name}  is successfully remove from Certifications`,
 			});
 		}
 	);
@@ -279,7 +297,9 @@ exports.removeAgencyCertification = (req, res) => {
 
 // inboxNotification
 
-// Get Notification
+/**
+ * Get Notification
+ */
 exports.getAgencyInbox = (req, res) => {
 	Agency.findById(req.profile._id).exec((err, agency) => {
 		if (err) {
@@ -292,7 +312,9 @@ exports.getAgencyInbox = (req, res) => {
 	});
 };
 
-// add Notification
+/**
+ *  add Notification
+ */
 exports.addAgencyInbox = (req, res) => {
 	Agency.findOneAndUpdate(
 		{ _id: req.body.agencyId },
@@ -321,22 +343,25 @@ exports.addAgencyInbox = (req, res) => {
 
 // Tour List
 
+/// can be done by getAllTours
 // Get Agency Tours
-exports.getAgencyInbox = (req, res) => {
-	Agency.findById(req.profile._id)
-		.populate("tourProvides", "_id tourName images tourPrice location")
-		.exec((err, agency) => {
-			if (err) {
-				return res.status(400).json({
-					msg: "No tour found in database",
-					error: err,
-				});
-			}
-			return res.json(agency.tourProvides);
-		});
-};
+// exports.getAgencyTour = (req, res) => {
+// 	Agency.findById(req.profile._id)
+// 		.populate("tourProvides", "_id tourName images tourPrice location")
+// 		.exec((err, agency) => {
+// 			if (err) {
+// 				return res.status(400).json({
+// 					msg: "No tour found in database",
+// 					error: err,
+// 				});
+// 			}
+// 			return res.json(agency.tourProvides);
+// 		});
+// };
 
-// Add Product in product list
+/**
+ * Add Tour in product list
+ */
 exports.addAgencyTour = (req, res) => {
 	Agency.findOneAndUpdate(
 		{ _id: req.profile._id },
@@ -355,7 +380,9 @@ exports.addAgencyTour = (req, res) => {
 	});
 };
 
-// Remove tour form tourlist
+/**
+ *  Remove tour form tourlist
+ */
 exports.removeAgencyTour = (req, res) => {
 	Agency.findByIdAndUpdate(
 		{ _id: req.profile._id },
@@ -379,6 +406,7 @@ exports.removeAgencyTour = (req, res) => {
 // Get Agency Booking
 exports.getAgencyBooking = (req, res) => {
 	Agency.findById(req.profile._id)
+		.select("bookings")
 		.populate(
 			"bookings",
 			"_id status bookedOn tourId location tourists startingDate endingDate"
@@ -395,10 +423,15 @@ exports.getAgencyBooking = (req, res) => {
 };
 
 // Add Booking in bookinglist
-exports.addAgencyBooking = (req, res, next) => {
+exports.addAgencyBooking = (req, res) => {
 	Agency.findOneAndUpdate(
-		{ _id: req.newTour.providerAgency },
-		{ $push: { bookings: req.newTour._id } },
+		{ _id: req.newBooking.agencyId },
+		{
+			$push: { bookings: req.newBooking._id },
+			$inc: {
+				totalEarning: +req.newBooking.totalAmount,
+			},
+		},
 		{ new: true } // here {new: true} means send me back the updated one form DB not the old one
 	).exec((err, agency) => {
 		if (err) {
@@ -407,10 +440,9 @@ exports.addAgencyBooking = (req, res, next) => {
 				error: err,
 			});
 		}
-		req.agencyBooking = {
-			msg: "successfully Added to agencyBooking",
-		};
-		next();
+		res.json({
+			msg: "successfully Booked",
+		});
 	});
 };
 

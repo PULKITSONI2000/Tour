@@ -18,7 +18,9 @@ exports.getTourById = (req, res, next, id) => {
 		});
 };
 
-// Get Product
+/**
+ * get a tour
+ */
 exports.getTour = (req, res) => {
 	if (req.tour === null) {
 		return res.status(400).json({
@@ -28,7 +30,10 @@ exports.getTour = (req, res) => {
 	return res.json(req.tour);
 };
 
-// Get all Product
+/**
+ * Get All Tours
+ * @requires limit, skip , maxPrice , minPrice, sortby, order, categoryId<array> , languages<array>, agencyId
+ */
 exports.getAllTours = async (req, res) => {
 	let limit = req.query.limit ? parseInt(req.query.limit) : 10; // in major languages querry is passed in string format
 	let skip = req.query.skip ? parseInt(req.query.skip) : 0; // default is 0
@@ -36,13 +41,15 @@ exports.getAllTours = async (req, res) => {
 	let minPrice = req.query.minPrice ? parseInt(req.query.minPrice) : 0;
 	let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
 	let order = req.query.order ? req.query.order : "desc";
-	let category = req.query.category ? req.query.category : false;
+	let categoryId = req.query.categoryId ? req.query.categoryId : false;
+	let agencyId = req.query.agencyId ? req.query.agencyId : false;
 	let languages = req.query.languages ? req.query.languages : false;
 
 	let findConditions = {};
 
 	languages.length > 0 && (findConditions["languages"] = { $in: languages });
-	category.length > 0 && (findConditions["category"] = { $in: category });
+	categoryId.length > 0 && (findConditions["category"] = { $in: categoryId });
+	agencyId.length > 0 && (findConditions["providerAgency"] = agencyId);
 
 	console.log(findConditions);
 	await Tour.find({
@@ -124,25 +131,29 @@ exports.getAllTours = async (req, res) => {
 // 		});
 // };
 
-// Get Products by Category
-exports.getTourByCategory = (req, res) => {
-	let limit = req.query.limit ? parseInt(req.query.limit) : 10; // im major languages querry is passed in string format
+// canbe achived bt getAlltours
 
-	Tour.find({ category: req.category })
-		.select("tourTitle tourPrice images") // '-' to remove that field
-		.exec((err, tour) => {
-			if (err) {
-				return res.status(400).json({
-					error: "No product found",
-				});
-			}
-			tour.imageUrl = tour.images[0];
-			tour.images = undefined;
-			res.json(tour);
-		});
-};
+// // Get Products by Category
+// exports.getTourByCategory = (req, res) => {
+// 	let limit = req.query.limit ? parseInt(req.query.limit) : 10; // im major languages querry is passed in string format
 
-// Create Product
+// 	Tour.find({ category: req.category })
+// 		.select("tourTitle tourPrice images") // '-' to remove that field
+// 		.exec((err, tour) => {
+// 			if (err) {
+// 				return res.status(400).json({
+// 					error: "No product found",
+// 				});
+// 			}
+// 			tour.imageUrl = tour.images[0];
+// 			tour.images = undefined;
+// 			res.json(tour);
+// 		});
+// };
+
+/**
+ * create tour
+ */
 exports.createTour = (req, res, next) => {
 	const errors = validationResult(req);
 
@@ -156,8 +167,8 @@ exports.createTour = (req, res, next) => {
 	tour.save((err, tour) => {
 		if (err) {
 			return res.status(400).json({
-				error: "Not able to save Tour in DataBase",
-				msg: err,
+				msg: "Not able to save Tour in DataBase",
+				error: err,
 			});
 		}
 		req.newTour = {
@@ -169,7 +180,9 @@ exports.createTour = (req, res, next) => {
 	});
 };
 
-// Delete product
+/**
+ * Delete product
+ */
 exports.removeTour = (req, res, next) => {
 	let tour = req.tour;
 	tour.remove((err, removeTour) => {
@@ -179,14 +192,16 @@ exports.removeTour = (req, res, next) => {
 			});
 		}
 		req.removedTour = {
-			message: "Successfully remove",
+			msg: "Successfully remove",
 			tourTitle: removeTour.tourTitle,
 		};
 		next();
 	});
 };
 
-// Update tour
+/**
+ * Update tour
+ */
 exports.updateTour = (req, res) => {
 	const errors = validationResult(req);
 
@@ -203,8 +218,8 @@ exports.updateTour = (req, res) => {
 		(err, tour) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Not able to update the tour",
-					msg: err,
+					msg: "Not able to update the tour",
+					error: err,
 				});
 			}
 			// undefined values does not even shown up so it is best then assigning "" string
@@ -243,7 +258,8 @@ exports.addTourReview = (req, res) => {
 		(err, tour) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to add review in review list",
+					msg: "Unable to add review in review list",
+					error: err,
 				});
 			}
 			return res.json({
@@ -253,23 +269,26 @@ exports.addTourReview = (req, res) => {
 	);
 };
 
-// Update No Of booking
+/**
+ * Update No Of booking
+ */
 exports.updateNoOfBooking = (req, res, next) => {
 	User.findByIdAndUpdate(
 		{ _id: req.tour._id },
 		{
-			$inc: { noOfBooking: +1 },
+			$inc: { noOfBooking: +req.newBooking.tourists.length },
 		},
 		{ new: true },
 		(err, tour) => {
 			if (err) {
 				return res.status(400).json({
-					error: "Unable to update No Of Booking",
+					msg: "Unable to update No Of Booking",
+					error: err,
 				});
 			}
-			req.noOfBooking = {
-				msg: `${tour.tourTitle} Number of booking is Successfully updated`,
-			};
+			// req.noOfBooking = {
+			// 	msg: `${tour.tourTitle}, Number of booking is Successfully updated`,
+			// };
 			next();
 		}
 	);
