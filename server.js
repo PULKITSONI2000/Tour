@@ -19,6 +19,8 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const tourRoutes = require("./routes/tour");
 const categoryRoutes = require("./routes/category");
+const agencyRoutes = require("./routes/agency");
+const bookingRoutes = require("./routes/booking");
 
 // starting app
 const app = express();
@@ -38,6 +40,8 @@ app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", tourRoutes);
 app.use("/api", categoryRoutes);
+app.use("/api", agencyRoutes);
+app.use("/api", bookingRoutes);
 
 // Logging
 if (process.env.NODE_ENV === "development") {
