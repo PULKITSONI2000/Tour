@@ -21,6 +21,7 @@ const {
 	getAgencyCertificates,
 	removeAgencyCertification,
 	getAgencyBooking,
+	addAgencyCertification,
 } = require("../controllers/agency");
 
 // param

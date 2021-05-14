@@ -70,7 +70,7 @@ exports.getBooking = (req, res) => {
  * fet all booking for admin
  * @requires agency to be a admin
  */
-exports.getAllOrders = (req, res) => {
+exports.getAllBooking = (req, res) => {
 	Booking.find()
 		.populate(
 			"tourists",
@@ -93,7 +93,7 @@ exports.getAllOrders = (req, res) => {
 };
 
 /// why we need this
-// exports.getOrderStatus = (req, res) => {
+// exports.getBookingStatus = (req, res) => {
 // 	res.json(Booking.schema.path("status").enumValues);
 // };
 

@@ -1,12 +1,26 @@
 const express = require("express");
 const { check, body } = require("express-validator");
-const { getBookingById, createBooking } = require("../controllers/booking");
+const { addAgencyBooking, getAgencyById } = require("../controllers/agency");
+const {
+	isSignedIn,
+	isAuthenticated,
+	isAdmin,
+	isAgencyVarified,
+} = require("../controllers/auth");
+const {
+	getBookingById,
+	createBooking,
+	getBooking,
+	getAllBooking,
+	updateStatus,
+} = require("../controllers/booking");
 const { updateNoOfBooking } = require("../controllers/tour");
 const { addUserBooking } = require("../controllers/user");
 const router = express.Router();
 
 // params
 router.param("bookingId", getBookingById);
+router.param("agencyId", getAgencyById);
 
 // create
 router.post(
@@ -79,30 +93,32 @@ router.post(
 	addAgencyBooking
 );
 // get a order
-router.get("/order/:userId", isSignedIn, isAuthenticated, getOrder);
+router.get("/booking/:userId", isSignedIn, isAuthenticated, getBooking);
 
 // get All order
 router.get(
-	"/order/all/:userId",
+	"/booking/all/:agencyId",
 	isSignedIn,
 	isAuthenticated,
 	isAdmin,
-	getAllOrders
+	getAllBooking
 );
 
+/// not reequired i think
 // Get status of order
-router.get(
-	"/order/status/:userId",
-	isSignedIn,
-	isAuthenticated,
-	getOrderStatus
-);
+// router.get(
+// 	"/booking/status/:userId",
+// 	isSignedIn,
+// 	isAuthenticated,
+// 	getOrderStatus
+// );
+
 // update Status of order
 router.put(
-	"/order/:orderId/status/:sellerId",
+	"/booking/update/status/:agencyId/:bookingId",
 	isSignedIn,
 	isAuthenticated,
-	isSellerVarified,
+	isAgencyVarified,
 	updateStatus
 );
 
