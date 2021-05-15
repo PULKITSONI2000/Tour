@@ -51,7 +51,6 @@ exports.getAllTours = async (req, res) => {
 	categoryId.length > 0 && (findConditions["category"] = { $in: categoryId });
 	agencyId.length > 0 && (findConditions["providerAgency"] = agencyId);
 
-	console.log(findConditions);
 	await Tour.find({
 		...findConditions,
 		$and: [

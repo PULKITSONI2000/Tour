@@ -21,6 +21,7 @@ const tourRoutes = require("./routes/tour");
 const categoryRoutes = require("./routes/category");
 const agencyRoutes = require("./routes/agency");
 const bookingRoutes = require("./routes/booking");
+const adminRoutes = require("./routes/admin");
 
 // starting app
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api", userRoutes);
 app.use("/api", tourRoutes);
 app.use("/api", categoryRoutes);
 app.use("/api", agencyRoutes);
+app.use("/api", adminRoutes);
 app.use("/api", bookingRoutes);
 
 // Logging

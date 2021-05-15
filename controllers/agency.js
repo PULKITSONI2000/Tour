@@ -4,7 +4,7 @@ const { validationResult } = require("express-validator");
 // param
 exports.getAgencyById = (req, res, next, id) => {
 	Agency.findById(id)
-		.populate("tourProvides", "_id tourName images")
+		.populate("tourProvides", "_id tourTitle images")
 		.exec((err, agency) => {
 			if (err || !agency) {
 				return res.status(400).json({
@@ -12,6 +12,10 @@ exports.getAgencyById = (req, res, next, id) => {
 					error: err,
 				});
 			}
+			agency.tourProvides.forEach((tour) => {
+				tour.images = tour?.images[0];
+			});
+
 			req.profile = agency;
 			next();
 		});
@@ -33,26 +37,29 @@ exports.getAgency = (req, res) => {
  * Get All Agencyes for Users
  */
 exports.getAllAgencies = (req, res) => {
-	Agency.find({ isVarified: 1 }).exec((err, agency) => {
-		if (err || !agency) {
-			return res.status(400).json({
-				msg: "No agencies are found in DataBase",
-				error: err,
-			});
-		}
-		agency.forEach((agency) => {
-			agency.salt = undefined;
-			agency.encry_password = undefined;
-			agency.inboxNotification = undefined;
-			agency.bookings = undefined;
-			agency.isVarified = undefined;
-			agency.totalEarning = undefined;
-			agency.createdAt = undefined;
-			agency.updatedAt = undefined;
-		});
+	Agency.find({ isVarified: 1 })
+		.select("_id agencyName email city state agencyAvatarUrl")
+		.exec((err, agency) => {
+			if (err || !agency) {
+				return res.status(400).json({
+					msg: "No agencies are found in DataBase",
+					error: err,
+				});
+			}
+			// console.log(agency);
+			// agency.forEach((agency) => {
+			// 	agency.salt = undefined;
+			// 	agency.encry_password = undefined;
+			// 	agency.inboxNotification = undefined;
+			// 	agency.bookings = undefined;
+			// 	agency.isVarified = undefined;
+			// 	agency.totalEarning = undefined;
+			// 	agency.createdAt = undefined;
+			// 	agency.updatedAt = undefined;
+			// });
 
-		return res.json(agency);
-	});
+			return res.json(agency);
+		});
 };
 
 /**
@@ -60,7 +67,10 @@ exports.getAllAgencies = (req, res) => {
  */
 exports.getAllAgencyDetails = (req, res) => {
 	Agency.find()
-		.sort([["isVarified", "asc"]])
+		.sort([
+			["isVarified", "asc"],
+			["role", "asc"],
+		])
 		.exec((err, agency) => {
 			if (err || !agency) {
 				return res.status(400).json({
@@ -123,7 +133,7 @@ exports.updateAgencyAvatar = (req, res) => {
 		});
 	}
 
-	User.findByIdAndUpdate(
+	Agency.findByIdAndUpdate(
 		{ _id: req.profile._id },
 		{ $set: { agencyAvatarUrl: req.body.agencyAvatarUrl } }, //update the fields
 		{ new: true },
@@ -137,8 +147,8 @@ exports.updateAgencyAvatar = (req, res) => {
 				});
 			}
 			res.json({
-				msg: "Succeccfully Updated userAvatar",
-				userAvatarUrl: agency.userAvatarUrl,
+				msg: "Succeccfully Updated Agency Avatar",
+				agencyAvatarUrl: agency.agencyAvatarUrl,
 			});
 		}
 	);
@@ -187,7 +197,7 @@ exports.updateAgencyPassword = (req, res) => {
 						});
 					}
 					res.json({
-						msg: `${agency.userName}, Succeccfully Updated Passwoed`,
+						msg: `${agency.agencyName}, Succeccfully Updated Passwoed`,
 					});
 				}
 			);
@@ -244,8 +254,17 @@ exports.getAgencyCertificates = (req, res) => {
  * add agencyCertification
  */
 exports.addAgencyCertification = (req, res) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).json({
+			error: errors.array(),
+			// error: errors.array()[0].msg,
+		});
+	}
+	// console.log(req.body);
 	Agency.findOneAndUpdate(
-		{ _id: req.profile._Id },
+		{ _id: req.profile._id },
 		{
 			$push: {
 				agencyCertifications: {
@@ -257,13 +276,14 @@ exports.addAgencyCertification = (req, res) => {
 		},
 		{ new: true }, // here {new: true} means send me back the updated one form DB not the old one
 		(err, agency) => {
-			if (err) {
+			if (err || !agency) {
 				return res.status(400).json({
-					error: "Unable to Add certificate in Agency details",
+					msg: "Unable to Add certificate in Agency details",
+					error: err,
 				});
 			}
 			return res.json({
-				msg: `${req.body.name}, is successfully added in Certifications`,
+				msg: `${agency.agencyName}, is successfully added in Certifications`,
 			});
 		}
 	);
@@ -273,8 +293,16 @@ exports.addAgencyCertification = (req, res) => {
  * remove agencyCertification
  */
 exports.removeAgencyCertification = (req, res) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).json({
+			error: errors.array(),
+			// error: errors.array()[0].msg,
+		});
+	}
 	Agency.findOneAndUpdate(
-		{ _id: req.profile._Id },
+		{ _id: req.profile._id },
 		{
 			$pull: {
 				agencyCertifications: req.body.certificate,
@@ -316,6 +344,14 @@ exports.getAgencyInbox = (req, res) => {
  *  add Notification
  */
 exports.addAgencyInbox = (req, res) => {
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		return res.status(422).json({
+			error: errors.array(),
+			// error: errors.array()[0].msg,
+		});
+	}
 	Agency.findOneAndUpdate(
 		{ _id: req.body.agencyId },
 		{
@@ -328,7 +364,7 @@ exports.addAgencyInbox = (req, res) => {
 		},
 		{ new: true }, // here {new: true} means send me back the updated one form DB not the old one
 		(err, agency) => {
-			if (err) {
+			if (err || !agency) {
 				return res.status(400).json({
 					msg: "Unable to Send notification to Agency",
 					error: err,

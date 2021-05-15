@@ -31,7 +31,7 @@ router.param("agencyId", getAgencyById);
 router.get("/agency/:agencyId", getAgency);
 
 // Get All agency
-router.get("/agency", getAllAgencies);
+router.get("/agencies", getAllAgencies);
 
 // update Agency Route
 router.put(
@@ -83,21 +83,16 @@ router.put(
 		).isLength({
 			max: 128,
 		}),
-		check("city", "city should be of maximum 64 character")
-			.isString()
-			.isLength({
-				max: 64,
-			}),
-		check("state", "state should be of maximum 32 character")
-			.isString()
-			.isLength({
-				max: 32,
-			}),
-		check("country", "country should be of maximum 64 character")
-			.isString()
-			.isLength({
-				max: 64,
-			}),
+		check("city", "city should be of maximum 64 character").isLength({
+			min: 0,
+			max: 64,
+		}),
+		check("state", "state should be of maximum 32 character").isLength({
+			max: 32,
+		}),
+		check("country", "country should be of maximum 64 character").isLength({
+			max: 64,
+		}),
 		check("totalEarning", "You can not define your own totalEarning").isLength({
 			max: 0,
 		}),
@@ -128,29 +123,15 @@ router.put(
 		).isLength({
 			max: 0,
 		}),
-		body("bookings").custom((value) => {
-			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
 
-			if (!checkForMongoDBId.test(value)) {
-				throw new Error("bookingsId should be ObjectId");
-			}
-			// Indicates the success of this synchronous custom validator
-			return true;
-		}),
-		body("inboxNotification").custom((value) => {
-			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
-
-			if (!checkForMongoDBId.test(value)) {
-				throw new Error("bookingsId should be ObjectId");
-			}
-			// Indicates the success of this synchronous custom validator
-			return true;
+		check("bookings", "bookings can not be defined here").isLength({
+			max: 0,
 		}),
 	],
 	updateAgency
 );
 
-// Updete User Password
+// Updete Agency Password
 router.put(
 	"/agency/update/password/:agencyId",
 	isSignedIn,
@@ -166,7 +147,7 @@ router.put(
 	updateAgencyPassword
 );
 
-// Updete User Avatar
+// Updete Agency Avatar
 router.put(
 	"/agency/update/avatar/:agencyId",
 	isSignedIn,
@@ -247,21 +228,19 @@ router.post(
 	isSignedIn,
 	isAuthenticated,
 	[
-		check("name", "name should be String and in Between 3-128 Char. ")
-			.isString()
-			.isLength({
+		check("name", "name should be String and in Between 3-128 Char. ").isLength(
+			{
 				max: 128,
 				min: 3,
-			}),
+			}
+		),
 		check(
 			"description",
 			"description should be String and in Between 3-1024 Char. "
-		)
-			.isString()
-			.isLength({
-				max: 1024,
-				min: 3,
-			}),
+		).isLength({
+			max: 1024,
+			min: 3,
+		}),
 		body("imageUrl").custom((value) => {
 			if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
 				throw new Error(`${value} is not a imageURL`);
@@ -279,6 +258,50 @@ router.delete(
 	"/agency/certificates/remove/:agencyId",
 	isSignedIn,
 	isAuthenticated,
+	[
+		body("certificate.imageUrl").custom((value) => {
+			if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+				throw new Error(`${value} is not a imageURL`);
+			}
+
+			// Indicates the success of this synchronous custom validator
+			return true;
+		}),
+		check(
+			"certificate.name",
+			"name should be String and in Between 3-128 Char. "
+		).isLength({
+			max: 128,
+			min: 3,
+		}),
+		check(
+			"certificate.description",
+			"description should be String and in Between 3-1024 Char. "
+		).isLength({
+			max: 1024,
+			min: 3,
+		}),
+		body("certificate.createdAt").custom((value) => {
+			let createAt = new Date(value);
+
+			if (createAt == "Invalid Date") {
+				throw new Error(`${value} should be in Date Format`);
+			}
+
+			// Indicates the success of this synchronous custom validator
+			return true;
+		}),
+		body("certificate.updatedAt").custom((value) => {
+			let createAt = new Date(value);
+
+			if (createAt == "Invalid Date") {
+				throw new Error(`${value} should be in Date Format`);
+			}
+
+			// Indicates the success of this synchronous custom validator
+			return true;
+		}),
+	],
 	removeAgencyCertification
 );
 
