@@ -6,7 +6,6 @@ const {
 	getUser,
 	updateUser,
 	getUserBooking,
-	addUserBooking,
 	getUserInbox,
 	addUserInbox,
 	updateUserAvatar,
@@ -15,10 +14,12 @@ const {
 } = require("../controllers/user");
 const { isSignedIn, isAuthenticated } = require("../controllers/auth");
 const { check, body } = require("express-validator");
+const { getAgencyById } = require("../controllers/agency");
 
 // param
 
 router.param("userId", getUserById);
+router.param("agencyId", getAgencyById);
 
 // Get Routes
 router.get("/user/:userId", isSignedIn, isAuthenticated, getUser);
@@ -147,26 +148,6 @@ router.get(
 	getUserBooking
 );
 
-// Add Booking to bookingHistory
-router.post(
-	"/user/booking/add/:userId",
-	isSignedIn,
-	isAuthenticated,
-	[
-		body("booking").custom((value) => {
-			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
-
-			if (!checkForMongoDBId.test(value)) {
-				throw new Error("booking Id should be ObjectId");
-			}
-			// Indicates the success of this synchronous custom validator
-			return true;
-		}),
-	],
-	// TODO: create boolong midelware
-	addUserBooking
-);
-
 // inboxNotification
 
 // Get Notification
@@ -174,7 +155,7 @@ router.get("/user/inbox/:userId", isSignedIn, isAuthenticated, getUserInbox);
 
 //Add User Notification
 router.post(
-	"/user/inbox/notify/:userId",
+	"/user/inbox/notify/:agencyId",
 	isSignedIn,
 	// isAdmin,
 	[

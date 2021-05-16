@@ -11,6 +11,7 @@ const {
 	removeAgencyTour,
 	addAgencyTour,
 } = require("../controllers/agency");
+const { getUserById } = require("../controllers/user");
 const { getCategoryById } = require("../controllers/category");
 const {
 	getTourById,
@@ -23,11 +24,10 @@ const {
 } = require("../controllers/tour");
 const router = express.Router();
 
-// TODO:  test all of them
-
 // all of params
 router.param("agencyId", getAgencyById);
 router.param("tourId", getTourById);
+router.param("userId", getUserById);
 router.param("categoryId", getCategoryById);
 
 // Get Route
@@ -35,9 +35,7 @@ router.get("/tour/:tourId", getTour);
 router.get("/tours", getAllTours);
 
 /// can be done by getALLTours
-// router.get("/tours/:categoryId", getTourByCategory);
 
-// router.get("/tour/categories", getAllUniqueCategories);
 // router.get("/products/name", getAllProductsName);
 // router.get("/search", getSearchProduct);
 
@@ -402,18 +400,18 @@ router.put(
 
 //Add review
 router.post(
-	"/tour/review/add/:tourId/:userId",
+	"/tour/review/add/:userId/:tourId",
 	isSignedIn,
 	[
-		body("userId").custom((value) => {
-			const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
+		// body("userId").custom((value) => {
+		// 	const checkForMongoDBId = new RegExp("^[0-9a-fA-F]{24}$");
 
-			if (!checkForMongoDBId.test(value)) {
-				throw new Error("User Id should be ObjectId");
-			}
-			// Indicates the success of this synchronous custom validator
-			return true;
-		}),
+		// 	if (!checkForMongoDBId.test(value)) {
+		// 		throw new Error("User Id should be ObjectId");
+		// 	}
+		// 	// Indicates the success of this synchronous custom validator
+		// 	return true;
+		// }),
 		check(
 			"review",
 			"Review should be String and in Between 3-200 Char. "

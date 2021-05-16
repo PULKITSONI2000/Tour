@@ -231,7 +231,6 @@ exports.updateTour = (req, res) => {
 	);
 };
 
-//TODO: Add Review
 exports.addTourReview = (req, res) => {
 	const errors = validationResult(req);
 
@@ -241,15 +240,15 @@ exports.addTourReview = (req, res) => {
 			// error: errors.array()[0].msg,
 		});
 	}
-
-	User.findByIdAndUpdate(
+	console.log(req.body);
+	Tour.findByIdAndUpdate(
 		{ _id: req.tour._id },
 		{
 			$push: {
 				review: {
 					userId: req.profile._id,
-					review: req.review,
-					stars: req.stars,
+					review: req.body.review,
+					stars: req.body.stars,
 				},
 			},
 		},
@@ -269,11 +268,11 @@ exports.addTourReview = (req, res) => {
 };
 
 /**
- * Update No Of booking
+ * Add No Of booking
  */
 exports.updateNoOfBooking = (req, res, next) => {
-	User.findByIdAndUpdate(
-		{ _id: req.tour._id },
+	Tour.findByIdAndUpdate(
+		{ _id: req.newBooking.tourId },
 		{
 			$inc: { noOfBooking: +req.newBooking.tourists.length },
 		},

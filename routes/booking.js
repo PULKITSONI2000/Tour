@@ -1,26 +1,30 @@
 const express = require("express");
 const { check, body } = require("express-validator");
-const { addAgencyBooking, getAgencyById } = require("../controllers/agency");
+const {
+	addAgencyBooking,
+	reduceTotalEarning,
+	getAgencyById,
+} = require("../controllers/agency");
 const {
 	isSignedIn,
 	isAuthenticated,
-	isAdmin,
 	isAgencyVarified,
 } = require("../controllers/auth");
 const {
 	getBookingById,
 	createBooking,
 	getBooking,
-	getAllBooking,
 	updateStatus,
+	cancelBooking,
 } = require("../controllers/booking");
 const { updateNoOfBooking } = require("../controllers/tour");
-const { addUserBooking } = require("../controllers/user");
+const { addUserBooking, getUserById } = require("../controllers/user");
 const router = express.Router();
 
 // params
 router.param("bookingId", getBookingById);
 router.param("agencyId", getAgencyById);
+router.param("userId", getUserById);
 
 // create
 router.post(
@@ -92,34 +96,52 @@ router.post(
 	updateNoOfBooking,
 	addAgencyBooking
 );
-// get a order
-router.get("/booking/:userId", isSignedIn, isAuthenticated, getBooking);
-
-// get All order
+// get a booking for user
 router.get(
-	"/booking/all/:agencyId",
+	"/user/booking/:userId/:bookingId",
 	isSignedIn,
 	isAuthenticated,
-	isAdmin,
-	getAllBooking
+	getBooking
 );
-
-/// not reequired i think
-// Get status of order
-// router.get(
-// 	"/booking/status/:userId",
-// 	isSignedIn,
-// 	isAuthenticated,
-// 	getOrderStatus
-// );
+// get a booking for agency
+router.get(
+	"/agency/booking/:agencyId/:bookingId",
+	isSignedIn,
+	isAuthenticated,
+	getBooking
+);
 
 // update Status of order
 router.put(
-	"/booking/update/status/:agencyId/:bookingId",
+	"/agency/booking/update/status/:agencyId/:bookingId",
 	isSignedIn,
 	isAuthenticated,
 	isAgencyVarified,
+	[
+		body("status").custom((value) => {
+			const checkForStatus = new RegExp(
+				"^(Cancelled|Completed|Booked|OnGoing)$"
+			);
+
+			if (!checkForStatus.test(value)) {
+				throw new Error(
+					'Status should be of "Cancelled", "Completed", "Booked", "OnGoing"'
+				);
+			}
+			// Indicates the success of this synchronous custom validator
+			return true;
+		}),
+	],
 	updateStatus
+);
+
+// cancel Booking
+router.post(
+	"/user/booking/cancel/:userId/:bookingId",
+	isSignedIn,
+	isAuthenticated,
+	cancelBooking,
+	reduceTotalEarning
 );
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const { Agency, reviewSchema } = require("../models/Agency");
+const { Agency } = require("../models/Agency");
 const { validationResult } = require("express-validator");
 
 // param
@@ -379,22 +379,6 @@ exports.addAgencyInbox = (req, res) => {
 
 // Tour List
 
-/// can be done by getAllTours
-// Get Agency Tours
-// exports.getAgencyTour = (req, res) => {
-// 	Agency.findById(req.profile._id)
-// 		.populate("tourProvides", "_id tourName images tourPrice location")
-// 		.exec((err, agency) => {
-// 			if (err) {
-// 				return res.status(400).json({
-// 					msg: "No tour found in database",
-// 					error: err,
-// 				});
-// 			}
-// 			return res.json(agency.tourProvides);
-// 		});
-// };
-
 /**
  * Add Tour in product list
  */
@@ -478,6 +462,31 @@ exports.addAgencyBooking = (req, res) => {
 		}
 		res.json({
 			msg: "successfully Booked",
+		});
+	});
+};
+
+/**
+ * Reduces totalAmount of booking in Agency total earning
+ */
+exports.reduceTotalEarning = (req, res, next) => {
+	Agency.findOneAndUpdate(
+		{ _id: req.booking.agencyId },
+		{
+			$inc: {
+				totalEarning: -req.booking.totalAmount,
+			},
+		},
+		{ new: true } // here {new: true} means send me back the updated one form DB not the old one
+	).exec((err, agency) => {
+		if (err || !agency) {
+			return res.status(400).json({
+				msg: "Not able subtract totalEarning of agency in DataBase",
+				error: err,
+			});
+		}
+		res.json({
+			msg: "Successfully cancelled your booking",
 		});
 	});
 };
