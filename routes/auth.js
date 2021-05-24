@@ -42,8 +42,22 @@ router.post(
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
-		check("password", "Password should be at least 6 char").isLength({
-			min: 6,
+		body("password").custom((value) => {
+			if (
+				!(
+					/[a-z]/g.test(value) &&
+					/[A-Z]/g.test(value) &&
+					/[0-9]/g.test(value) &&
+					/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
+					value.length > 6
+				)
+			) {
+				throw new Error(
+					`Password should contain at least one of all small latter, capital latter, digit, symbole`
+				);
+			}
+
+			return true;
 		}),
 		check("email", "Email is required").isEmail().normalizeEmail(),
 		check(
@@ -61,8 +75,22 @@ router.post(
 			min: 3,
 			max: 64,
 		}),
-		check("password", "Password should be at least 6 char").isLength({
-			min: 6,
+		body("password").custom((value) => {
+			if (
+				!(
+					/[a-z]/g.test(value) &&
+					/[A-Z]/g.test(value) &&
+					/[0-9]/g.test(value) &&
+					/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
+					value.length > 6
+				)
+			) {
+				throw new Error(
+					`Password should contain at least one of all small latter, capital latter, digit, symbole`
+				);
+			}
+
+			return true;
 		}),
 	],
 	signin
@@ -70,7 +98,7 @@ router.post(
 
 router.get("/signout", signout);
 
-// Agency routes
+/// Agency routes
 
 router.post(
 	"/agency/signup",
@@ -88,8 +116,22 @@ router.post(
 			return true;
 		}),
 		check("email", "Email is required").isEmail().normalizeEmail(),
-		check("password", "Password should be at least 6 char").isLength({
-			min: 6,
+		body("password").custom((value) => {
+			if (
+				!(
+					/[a-z]/g.test(value) &&
+					/[A-Z]/g.test(value) &&
+					/[0-9]/g.test(value) &&
+					/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
+					value.length > 6
+				)
+			) {
+				throw new Error(
+					`Password should contain at least one of all small latter, capital latter, digit, symbole`
+				);
+			}
+
+			return true;
 		}),
 		check(
 			"phone",
@@ -110,11 +152,22 @@ router.post(
 	[
 		// if error occur go to docs or use .withMessage('must be at least 5 chars long') after is length
 		check("email", "email is required").isEmail().normalizeEmail(),
-		check(
-			"password",
-			"password field is required and should be of length 6 char"
-		).isLength({
-			min: 6,
+		body("password").custom((value) => {
+			if (
+				!(
+					/[a-z]/g.test(value) &&
+					/[A-Z]/g.test(value) &&
+					/[0-9]/g.test(value) &&
+					/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
+					value.length > 6
+				)
+			) {
+				throw new Error(
+					`Password should contain at least one of all small latter, capital latter, digit, symbole`
+				);
+			}
+
+			return true;
 		}),
 	],
 	agencySignin

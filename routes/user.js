@@ -114,11 +114,39 @@ router.put(
 	isSignedIn,
 	isAuthenticated,
 	[
-		check("oldPassword", "Old Password should be at least 6 char").isLength({
-			min: 6,
+		body("oldPassword").custom((value) => {
+			if (
+				!(
+					/[a-z]/g.test(value) &&
+					/[A-Z]/g.test(value) &&
+					/[0-9]/g.test(value) &&
+					/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
+					value.length > 6
+				)
+			) {
+				throw new Error(
+					`oldPassword should contain at least one of all small latter, capital latter, digit, symbole`
+				);
+			}
+
+			return true;
 		}),
-		check("newPassword", "New Password should be at least 6 char").isLength({
-			min: 6,
+		body("newPassword").custom((value) => {
+			if (
+				!(
+					/[a-z]/g.test(value) &&
+					/[A-Z]/g.test(value) &&
+					/[0-9]/g.test(value) &&
+					/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
+					value.length > 6
+				)
+			) {
+				throw new Error(
+					`newPassword should contain at least one of all small latter, capital latter, digit, symbole`
+				);
+			}
+
+			return true;
 		}),
 	],
 	updateUserPassword
