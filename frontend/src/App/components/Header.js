@@ -22,6 +22,12 @@ import { Fab, Slide, useScrollTrigger, Zoom } from "@material-ui/core";
 
 import { connect } from "react-redux";
 import { updateTheme } from "../action/theme";
+import { isAuthenticated, userSignOut } from "../../services/authServices";
+
+import { withRouter } from "react-router-dom";
+
+import { UseDialog, Dialog } from "./UseDialog";
+import UserSignInSignUpForm from "./UserSignInSignUpForm";
 
 const useStyles = makeStyles((theme) => ({
 	grow: {
@@ -90,6 +96,27 @@ const useStyles = makeStyles((theme) => ({
 			display: "none",
 		},
 	},
+	themeButton: {
+		display: "none",
+		[theme.breakpoints.up("md")]: {
+			display: "flex",
+			border: `1px solid ${theme.palette.primary.light}`,
+			borderRadius: theme.shape.borderRadius,
+			marginRight: theme.spacing(2),
+			"& button": {
+				padding: theme.spacing(1),
+			},
+		},
+	},
+	themeButtonMobile: {
+		display: "flex",
+		border: `1px solid ${theme.palette.primary.light}`,
+		borderRadius: theme.shape.borderRadius,
+		marginLeft: theme.spacing(1),
+		"& button": {
+			padding: theme.spacing(1),
+		},
+	},
 }));
 
 const HideOnScroll = ({ children }) => {
@@ -125,8 +152,10 @@ const ScrollTop = ({ children }) => {
 	);
 };
 
-const Header = ({ updateTheme }) => {
+const Header = ({ history, updateTheme }) => {
 	const classes = useStyles();
+
+	const { dialog, setDialog } = UseDialog();
 
 	/*
 		NOTE: 
@@ -168,8 +197,60 @@ const Header = ({ updateTheme }) => {
 			open={isMenuOpen}
 			onClose={handleMenuClose}
 		>
-			<MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-			<MenuItem onClick={handleMenuClose}>My account</MenuItem>
+			{isAuthenticated() ? (
+				isAuthenticated().user ? (
+					[
+						<MenuItem onClick={handleMenuClose} key="UserDashboard">
+							Dashboard
+						</MenuItem>,
+						<MenuItem
+							onClick={() => {
+								handleMenuClose();
+								userSignOut(() => {
+									history.push("/");
+								});
+							}}
+							style={{ color: "red" }}
+							key="UserSignOut"
+						>
+							Sign Out
+						</MenuItem>,
+					]
+				) : (
+					[
+						<MenuItem onClick={handleMenuClose} key="AgencyDashboard">
+							Dashboard
+						</MenuItem>,
+						<MenuItem
+							onClick={handleMenuClose}
+							style={{ color: "red" }}
+							key="AgencySignOut"
+						>
+							Sign Out
+						</MenuItem>,
+					]
+				)
+			) : (
+				<MenuItem
+					onClick={() => {
+						handleMenuClose();
+
+						setDialog({
+							open: true,
+							children: (
+								<UserSignInSignUpForm
+									signInSignUp="Sign In"
+									next={() => {
+										setDialog({ ...{ dialog }, open: false });
+									}}
+								/>
+							),
+						});
+					}}
+				>
+					login
+				</MenuItem>
+			)}
 		</Menu>
 	);
 
@@ -212,6 +293,42 @@ const Header = ({ updateTheme }) => {
 				</IconButton>
 				<p>Profile</p>
 			</MenuItem>
+			{/* theme */}
+			<MenuItem>
+				<div className={classes.themeButtonMobile}>
+					<IconButton
+						aria-label="use dark theme"
+						color="inherit"
+						onClick={() => {
+							updateTheme("dark");
+						}}
+					>
+						<LensIcon
+							style={{
+								color: "black",
+							}}
+						/>
+					</IconButton>
+					<IconButton
+						aria-label="use light theme"
+						color="inherit"
+						onClick={() => {
+							updateTheme("light");
+						}}
+					>
+						<LensIcon style={{ color: "white" }} />
+					</IconButton>
+					<IconButton
+						aria-label="use red theme"
+						color="inherit"
+						onClick={() => {
+							updateTheme("red");
+						}}
+					>
+						<LensIcon style={{ color: "red" }} />
+					</IconButton>
+				</div>
+			</MenuItem>
 		</Menu>
 	);
 
@@ -248,14 +365,13 @@ const Header = ({ updateTheme }) => {
 						<div className={classes.grow} />
 
 						{/* theme switcher */}
-						<div>
+						<div className={classes.themeButton}>
 							<IconButton
 								aria-label="use dark theme"
 								color="inherit"
 								onClick={() => {
 									updateTheme("dark");
 								}}
-								style={{ paddingRight: "3px" }}
 							>
 								<LensIcon
 									style={{
@@ -264,7 +380,6 @@ const Header = ({ updateTheme }) => {
 								/>
 							</IconButton>
 							<IconButton
-								style={{ paddingRight: "3px", paddingLeft: "3px" }}
 								aria-label="use light theme"
 								color="inherit"
 								onClick={() => {
@@ -274,7 +389,6 @@ const Header = ({ updateTheme }) => {
 								<LensIcon style={{ color: "white" }} />
 							</IconButton>
 							<IconButton
-								style={{ paddingLeft: "3px" }}
 								aria-label="use red theme"
 								color="inherit"
 								onClick={() => {
@@ -333,6 +447,7 @@ const Header = ({ updateTheme }) => {
 			</ScrollTop>
 			{renderMobileMenu}
 			{renderMenu}
+			<Dialog dialog={dialog} setDialog={setDialog} />
 		</div>
 	);
 };
@@ -345,4 +460,4 @@ const mapDispatchToProps = (dispatch) => ({
 	},
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Header));

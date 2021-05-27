@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
+import { Redirect } from "react-router-dom";
+
 import { UseForm, Form } from "./UseForm";
+import { UseAlert, Alert } from "./UseAlert";
 import Controls from "./controls/Controls";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
@@ -9,6 +12,11 @@ import {
 	makeStyles,
 	Typography,
 } from "@material-ui/core";
+import {
+	authenticate,
+	isAuthenticated,
+	userSignIn,
+} from "../../services/authServices";
 
 const useStyles = makeStyles((theme) => ({
 	typographyRoot: {
@@ -16,8 +24,9 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const UserSignInSignUpForm = ({ signInSignUp }) => {
+const UserSignInSignUpForm = ({ signInSignUp, next = () => {} }) => {
 	const classes = useStyles();
+	const [redirect, setRedirect] = useState({ didRedirect: false, to: "/" });
 
 	const initialFValues =
 		signInSignUp === "Sign In"
@@ -72,15 +81,38 @@ const UserSignInSignUpForm = ({ signInSignUp }) => {
 		true,
 		validate
 	);
+	const { alert, setAlert } = UseAlert();
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		if (validate()) {
-			// addOrEdit(values, resetForm);
+			const result =
+				signInSignUp === "Sign In"
+					? userSignIn({ ...values, showPassword: undefined })
+					: "";
 			/*
-                TODO: add sign in service here
-             */
-			console.log("OK");
+						TODO: signUP page is panding
+					 */
+
+			result
+				.then((response) => {
+					if (response.status === 200) {
+						authenticate(response.data, () => {
+							setRedirect({ didRedirect: true, to: "/" });
+							next();
+						});
+					} else {
+						setAlert({
+							...alert,
+							open: true,
+							message: response.data.msg,
+							severity: "error",
+						});
+					}
+				})
+				.catch((err) => {
+					console.error("Error", err);
+				});
 		}
 	};
 
@@ -91,55 +123,65 @@ const UserSignInSignUpForm = ({ signInSignUp }) => {
 	const handleMouseDownPassword = (event) => {
 		event.preventDefault();
 	};
-
+	const performRedirect = () => {
+		if (isAuthenticated()) {
+			return <Redirect to="/" />;
+		}
+		if (redirect.didRedirect) {
+			return <Redirect to={redirect.to} />;
+		}
+	};
 	return (
-		<Form onSubmit={handleSubmit} autoComplete="off">
-			<Typography
-				variant="h3"
-				component="h1"
-				className={classes.typographyRoot}
-			>
-				{signInSignUp}
-			</Typography>
-			<Controls.Input
-				name="userName"
-				label="User Name"
-				value={values.userName}
-				onChange={handleInputChange}
-				error={errors.userName}
-				autoComplete="username"
-			/>
-			<Controls.Input
-				autoComplete="current-password"
-				label="Password"
-				name="password"
-				type={values.showPassword ? "text" : "password"}
-				value={values.password}
-				onChange={handleInputChange}
-				error={errors.password}
-				InputProps={{
-					endAdornment: (
-						<InputAdornment position="end">
-							<IconButton
-								aria-label="toggle password visibility"
-								onClick={handleClickShowPassword}
-								onMouseDown={handleMouseDownPassword}
-								edge="end"
-							>
-								{values.showPassword ? <Visibility /> : <VisibilityOff />}
-							</IconButton>
-						</InputAdornment>
-					),
-				}}
-			/>
-			<Controls.Button
-				type="submit"
-				text={signInSignUp}
-				size="large"
-				disabled={!Object.values(errors).every((x) => x === "")}
-			/>
-			{console.log()}
-		</Form>
+		<>
+			{performRedirect()}
+			<Form onSubmit={handleSubmit} autoComplete="off">
+				<Typography
+					variant="h3"
+					component="h1"
+					className={classes.typographyRoot}
+				>
+					{signInSignUp}
+				</Typography>
+				<Controls.Input
+					name="userName"
+					label="User Name"
+					value={values.userName}
+					onChange={handleInputChange}
+					error={errors.userName}
+					autoComplete="username"
+				/>
+				<Controls.Input
+					autoComplete="current-password"
+					label="Password"
+					name="password"
+					type={values.showPassword ? "text" : "password"}
+					value={values.password}
+					onChange={handleInputChange}
+					error={errors.password}
+					InputProps={{
+						endAdornment: (
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onClick={handleClickShowPassword}
+									onMouseDown={handleMouseDownPassword}
+									edge="end"
+								>
+									{values.showPassword ? <Visibility /> : <VisibilityOff />}
+								</IconButton>
+							</InputAdornment>
+						),
+					}}
+				/>
+				<Controls.Button
+					type="submit"
+					text={signInSignUp}
+					size="large"
+					disabled={!Object.values(errors).every((x) => x === "")}
+				/>
+			</Form>
+			<Alert alert={alert} setAlert={setAlert} />
+		</>
 	);
 };
 

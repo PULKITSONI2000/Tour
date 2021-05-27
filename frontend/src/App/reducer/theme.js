@@ -49,6 +49,9 @@ let theme = createMuiTheme({
 	props: {
 		MuiIconButton: { disableRipple: true },
 	},
+	shape: {
+		borderRadius: 10,
+	},
 });
 
 const updateTheme = (themeName) => {

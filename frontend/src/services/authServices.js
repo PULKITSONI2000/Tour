@@ -26,7 +26,8 @@ export const userSignIn = async (user) => {
 		});
 		return response;
 	} catch (error) {
-		console.error("User Signin ERROR : ", error);
+		// console.error("User Signin ERROR : ", error.response);
+		return error.response;
 	}
 };
 
@@ -38,7 +39,7 @@ export const authenticate = (data, next) => {
 	}
 }; // for user contineously signin
 
-export const userSignOut = (next) => {
+export const userSignOut = async (next) => {
 	if (typeof window !== "undefined") {
 		localStorage.removeItem("jwt");
 		next();
@@ -93,7 +94,7 @@ export const agencySignIn = async (agency) => {
 	}
 };
 
-export const agencySignOut = (next) => {
+export const agencySignOut = async (next) => {
 	if (typeof window !== "undefined") {
 		localStorage.removeItem("jwt");
 		next();
