@@ -4,23 +4,15 @@ import MuiDialog from "@material-ui/core/Dialog";
 import { DialogContent, DialogTitle, Paper, Slide } from "@material-ui/core";
 import Draggable from "react-draggable";
 
-// const useStyles = makeStyles((theme) => ({
-// 	modal: {
-// 		display: "flex",
-// 		alignItems: "center",
-// 		justifyContent: "center",
-// 		borderRadius: theme.spacing(5),
-// 	},
-// 	paper: {
-// 		border: `2px solid ${theme.palette.primary.main}`,
-// 		borderRadius: theme.spacing(2),
-// 		boxShadow: theme.shadows[5],
-// 		padding: theme.spacing(2, 4, 3),
-// 	},
-// }));
-
 const UseDialog = (
-	initialDialog = { open: false, title: "", children: "" }
+	initialDialog = {
+		open: false,
+		title: "",
+		children: "",
+		maxWidth: "sm",
+		fullWidth: true,
+		scroll: "body",
+	}
 ) => {
 	const [dialog, setDialog] = useState(initialDialog);
 
@@ -42,7 +34,6 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 const Dialog = ({ dialog, setDialog }) => {
-	// const classes = useStyles();
 	const handleClose = () => {
 		setDialog({ ...dialog, open: false });
 	};
@@ -53,7 +44,9 @@ const Dialog = ({ dialog, setDialog }) => {
 			TransitionComponent={Transition}
 			PaperComponent={PaperComponent}
 			aria-labelledby="draggable-dialog-title"
-			scroll="body"
+			scroll={dialog.body}
+			maxWidth={dialog.maxWidth}
+			fullWidth={dialog.fullWidth}
 		>
 			{dialog.title && (
 				<DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">

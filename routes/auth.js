@@ -35,9 +35,12 @@ router.post(
 				max: 32,
 			}),
 		body("userAvatarUrl").custom((value) => {
-			if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+			if (value && !value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
 				throw new Error(`${value} is not a imageURL`);
 			}
+			/*
+				TODO: add a function which 
+			 */
 
 			// Indicates the success of this synchronous custom validator
 			return true;

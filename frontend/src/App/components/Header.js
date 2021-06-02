@@ -236,12 +236,13 @@ const Header = ({ history, updateTheme }) => {
 						handleMenuClose();
 
 						setDialog({
+							...dialog,
 							open: true,
 							children: (
 								<UserSignInSignUpForm
 									signInSignUp="Sign In"
 									next={() => {
-										setDialog({ ...{ dialog }, open: false });
+										setDialog({ ...dialog, open: false });
 									}}
 								/>
 							),
