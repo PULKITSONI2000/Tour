@@ -61,12 +61,33 @@ router.post(
 			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
-		check("startingDate", "Date of Birth should be in date format")
-			.trim()
-			.isDate(),
-		check("endingDate", "Date of Birth should be in date format")
-			.trim()
-			.isDate(),
+		body("startingDate").custom((value) => {
+			let startingDate = new Date(value);
+			let endingDate = new Date(req.body.endingDate);
+			if (startingDate === "Invalid Date") {
+				throw new Error("Starting Date should be in date format");
+			} else {
+				if (Date.parse(startingDate) > Date.parse(endingDate)) {
+					throw new Error("Starting Date should be smaller then Ending Date");
+				}
+			}
+
+			return true;
+		}),
+		body("endingDate").custom((value) => {
+			let endingDate = new Date(value);
+			let startingDate = new Date(req.body.endingDate);
+			if (endingDate === "Invalid Date") {
+				throw new Error("Ending Date should be in date format");
+			} else {
+				if (Date.parse(startingDate) > Date.parse(endingDate)) {
+					throw new Error("Ending Date should be Bigger then Starting Date");
+				}
+			}
+
+			return true;
+		}),
+
 		check("status", "You can not define booking Status").isLength({
 			max: 0,
 		}),

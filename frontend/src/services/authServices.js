@@ -12,7 +12,8 @@ export const userSignUp = async (user) => {
 		});
 		return response;
 	} catch (error) {
-		console.error("User Signup ERROR : ", error);
+		console.error("User Signup ERROR : ", error.response);
+		return error.response;
 	}
 };
 
@@ -26,7 +27,7 @@ export const userSignIn = async (user) => {
 		});
 		return response;
 	} catch (error) {
-		// console.error("User Signin ERROR : ", error.response);
+		console.error("User Signin ERROR : ", error.response);
 		return error.response;
 	}
 };

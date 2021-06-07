@@ -16,6 +16,16 @@ exports.signup = (req, res) => {
 			// error: errors.array()[0].msg,
 		});
 	}
+	if (!req.body.userAvatarUrl) {
+		req.body.userAvatarUrl = req.body.firstName
+			.trim()[0]
+			.toLowerCase()
+			.match(/^[a-zA-Z]$/g)
+			? `https://botanica.gallery/wp/wp-content/plugins/buddypress-first-letter-avatar/images/roboto/128/latin_${req.body.firstName
+					.trim()[0]
+					.toLowerCase()}.png`
+			: "https://botanica.gallery/wp/wp-content/plugins/buddypress-first-letter-avatar/images/roboto/128/mystery.png";
+	}
 
 	var user = new User(req.body);
 	user.save(
@@ -74,12 +84,6 @@ exports.signin = (req, res) => {
 	}
 
 	User.findOne({ userName: userName }, (err, user) => {
-		// if (err || !user) {
-		//   return res.status(400).json({
-		//     error: "USER email does not exists",
-		//   });
-		// }
-
 		if (err) {
 			return res.status(400).json({
 				msg: "Unable to find user in DataBase",
@@ -93,7 +97,7 @@ exports.signin = (req, res) => {
 
 		if (!user.authenticate(password)) {
 			return res.status(401).json({
-				msg: "UserName or Password do not match",
+				msg: "UserName/Password does not match",
 			});
 		}
 
@@ -137,6 +141,16 @@ exports.agencySignup = (req, res) => {
 		return res.status(422).json({
 			error: errors.array(),
 		});
+	}
+	if (!req.body.agencyAvatarUrl) {
+		req.body.agencyAvatarUrl = req.body.agencyName
+			.trim()[0]
+			.toLowerCase()
+			.match(/^[a-zA-Z]$/g)
+			? `https://botanica.gallery/wp/wp-content/plugins/buddypress-first-letter-avatar/images/roboto/128/latin_${req.body.agencyName
+					.trim()[0]
+					.toLowerCase()}.png`
+			: "https://botanica.gallery/wp/wp-content/plugins/buddypress-first-letter-avatar/images/roboto/128/mystery.png";
 	}
 
 	const agency = new Agency(req.body);

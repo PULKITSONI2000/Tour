@@ -44,7 +44,7 @@ const Dialog = ({ dialog, setDialog }) => {
 			TransitionComponent={Transition}
 			PaperComponent={PaperComponent}
 			aria-labelledby="draggable-dialog-title"
-			scroll={dialog.body}
+			scroll={dialog.scroll}
 			maxWidth={dialog.maxWidth}
 			fullWidth={dialog.fullWidth}
 		>

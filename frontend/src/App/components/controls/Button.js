@@ -14,6 +14,7 @@ const Button = ({
 	text,
 	size,
 	color,
+	type,
 	variant,
 	disabled = false,
 	onClick,
@@ -25,6 +26,7 @@ const Button = ({
 			variant={variant || "contained"}
 			size={size || "large"}
 			color={color || "primary"}
+			type={type || "button"}
 			onClick={onClick}
 			{...other}
 			disabled={disabled}

@@ -64,7 +64,19 @@ router.put(
 			return true;
 		}),
 
-		check("dob", "Date of Birth should be in date format").trim().isDate(),
+		body("dob").custom((value) => {
+			let dob = new Date(value);
+			let currentDate = new Date();
+			if (dob === "Invalid Date") {
+				throw new Error("Date of Birth should be in date format");
+			} else {
+				if (Date.parse(dob) > Date.parse(currentDate)) {
+					throw new Error("Date of Birth should be a future Date");
+				}
+			}
+
+			return true;
+		}),
 		check("email", "Email is required").isEmail().normalizeEmail(),
 		check(
 			"phone",

@@ -38,13 +38,32 @@ router.post(
 			if (value && !value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
 				throw new Error(`${value} is not a imageURL`);
 			}
-			/*
-				TODO: add a function which 
-			 */
 
-			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
+		body("gender").custom((value) => {
+			if (!value.match(/^(male|female|others)$/gi)) {
+				throw new Error(
+					`${value} is not a valid format (valid formats are - male, female or others)`
+				);
+			}
+
+			return true;
+		}),
+		body("dob").custom((value) => {
+			let dob = new Date(value);
+			let currentDate = new Date();
+			if (dob === "Invalid Date") {
+				throw new Error("Date of Birth should be in date format");
+			} else {
+				if (Date.parse(dob) > Date.parse(currentDate)) {
+					throw new Error("Date of Birth should be a future Date");
+				}
+			}
+
+			return true;
+		}),
+
 		body("password").custom((value) => {
 			if (
 				!(
