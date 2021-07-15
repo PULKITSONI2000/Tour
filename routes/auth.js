@@ -129,12 +129,17 @@ router.post(
 			min: 3,
 			max: 64,
 		}),
+		check(
+			"agencyOverview",
+			"Agency Overview should be of 8 character"
+		).isLength({
+			min: 8,
+			max: 1024,
+		}),
 		body("agencyAvatarUrl").custom((value) => {
-			if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+			if (value && !value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
 				throw new Error(`${value} is not a imageURL`);
 			}
-
-			// Indicates the success of this synchronous custom validator
 			return true;
 		}),
 		check("email", "Email is required").isEmail().normalizeEmail(),
@@ -164,6 +169,30 @@ router.post(
 			"You can not varify yourself Only admin can do that"
 		).isLength({
 			max: 0,
+		}),
+		body("officeAddress").custom((value) => {
+			if (value && (value.length < 8 || value.length > 128)) {
+				throw new Error("Address must be in range of 8-128 character");
+			}
+			return true;
+		}),
+		body("city").custom((value) => {
+			if (value && (value.length < 3 || value.length > 64)) {
+				throw new Error("city must be in range of 3-64 character");
+			}
+			return true;
+		}),
+		body("state").custom((value) => {
+			if (value && (value.length < 3 || value.length > 32)) {
+				throw new Error("state must be in range of 3-32 character");
+			}
+			return true;
+		}),
+		body("country").custom((value) => {
+			if (value && (value.length < 3 || value.length > 64)) {
+				throw new Error("country must be in range of 3-64 character");
+			}
+			return true;
 		}),
 	],
 	agencySignup

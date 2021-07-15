@@ -22,7 +22,12 @@ import { Fab, Slide, useScrollTrigger, Zoom } from "@material-ui/core";
 
 import { connect } from "react-redux";
 import { updateTheme } from "../action/theme";
-import { isAuthenticated, userSignOut } from "../../services/authServices";
+
+import {
+	isAuthenticated,
+	userSignOut,
+	agencySignOut,
+} from "../../services/authServices";
 
 import { withRouter } from "react-router-dom";
 
@@ -206,6 +211,7 @@ const Header = ({ history, updateTheme }) => {
 						<MenuItem
 							onClick={() => {
 								handleMenuClose();
+
 								userSignOut(() => {
 									history.push("/");
 								});
@@ -222,7 +228,12 @@ const Header = ({ history, updateTheme }) => {
 							Dashboard
 						</MenuItem>,
 						<MenuItem
-							onClick={handleMenuClose}
+							onClick={() => {
+								handleMenuClose();
+								agencySignOut(() => {
+									history.push("/agency/signin");
+								});
+							}}
 							style={{ color: "red" }}
 							key="AgencySignOut"
 						>

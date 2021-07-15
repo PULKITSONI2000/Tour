@@ -78,6 +78,7 @@ export const agencySignUp = async (agency) => {
 		return response;
 	} catch (error) {
 		console.error("Agency Signup ERROR : ", error);
+		return error.response;
 	}
 };
 
@@ -92,6 +93,7 @@ export const agencySignIn = async (agency) => {
 		return response;
 	} catch (error) {
 		console.error("Agency Signin ERROR : ", error);
+		return error.response;
 	}
 };
 

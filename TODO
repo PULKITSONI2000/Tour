@@ -1,5 +1,6 @@
 /// Backend
 
+    1) auth router - add agencySignup details
 
 /// frontend
 
@@ -7,4 +8,22 @@
 
 /// reminder
 
-    
+    agencySigninSignup
+
+
+
+/// Note Pad
+
+                    agencyName: "",
+					agencyOverview: "",
+					agencyAvatarUrl: "",
+					password: "",
+					confirmPassword: "",
+					showPassword: false,
+					moreDetails: false,
+					email: "",
+					phone: "",
+					officeAddress: "",
+					city: "",
+					state: "",
+					country: "",
