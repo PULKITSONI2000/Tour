@@ -19,10 +19,12 @@ const router = ({ theme }) => {
 				<BaseLayout>
 					<Switch>
 						<Route path="/" exact component={HomePage} />
-						/// User routes
+
+						{/* /// User routes */}
 						<Route path="/signin" exact component={SignInPage} />
 						<Route path="/signup" exact component={SignUpPage} />
-						/// Agency routes
+
+						{/* /// Agency routes */}
 						<Route path="/agency/signup" exact component={AgencySignUpPage} />
 						<Route path="/agency/signin" exact component={AgencySignInPage} />
 						<PrivateAgencyRoutes
@@ -30,7 +32,8 @@ const router = ({ theme }) => {
 							exact
 							component={AgencyDashboard}
 						/>
-						/// Other routes
+
+						{/* /// Other routes */}
 						<Route component={NotFoundPage} />
 					</Switch>
 				</BaseLayout>
