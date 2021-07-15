@@ -9,6 +9,8 @@ import SignUpPage from "../pages/user/SignUpPage";
 import AgencySignUpPage from "../pages/agency/AgencySignUpPage";
 import AgencySignInPage from "../pages/agency/AgencySignInPage";
 import BaseLayout from "./components/BaseLayout";
+import AgencyDashboard from "../pages/agency/AgencyDashboard";
+import { PrivateAgencyRoutes } from "../services/routerServices";
 
 const router = ({ theme }) => {
 	return (
@@ -17,10 +19,18 @@ const router = ({ theme }) => {
 				<BaseLayout>
 					<Switch>
 						<Route path="/" exact component={HomePage} />
+						/// User routes
 						<Route path="/signin" exact component={SignInPage} />
 						<Route path="/signup" exact component={SignUpPage} />
+						/// Agency routes
 						<Route path="/agency/signup" exact component={AgencySignUpPage} />
 						<Route path="/agency/signin" exact component={AgencySignInPage} />
+						<PrivateAgencyRoutes
+							path="/agency/dashboard"
+							exact
+							component={AgencyDashboard}
+						/>
+						/// Other routes
 						<Route component={NotFoundPage} />
 					</Switch>
 				</BaseLayout>
