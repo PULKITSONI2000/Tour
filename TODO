@@ -6,24 +6,37 @@
 
     1) add avatar input in user Sign Up
 
+	/// User DashBoard
+
+	1 DashBoard
+	2 Booking History
+	3 Inbox Notification
+
+	/// Agency DashBoard
+
+	1 DashBoard (profile)
+	2 Details (update)
+	3 Tour
+	4 add/update Tour
+	5 Inbox Notification
+	6 Bookings
+
+
+	/// Admin
+
+	7 Varification
+	8 Agencyes
+	9 category
+
+
+
+
 /// reminder
 
-    agencySigninSignup
+    
 
 
 
 /// Note Pad
 
-                    agencyName: "",
-					agencyOverview: "",
-					agencyAvatarUrl: "",
-					password: "",
-					confirmPassword: "",
-					showPassword: false,
-					moreDetails: false,
-					email: "",
-					phone: "",
-					officeAddress: "",
-					city: "",
-					state: "",
-					country: "",
+                    

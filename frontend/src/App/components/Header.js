@@ -29,7 +29,7 @@ import {
 	agencySignOut,
 } from "../../services/authServices";
 
-import { withRouter } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 
 import { UseDialog, Dialog } from "./UseDialog";
 import UserSignInSignUpForm from "./UserSignInSignUpForm";
@@ -42,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
 		position: "fixed",
 		bottom: theme.spacing(2),
 		right: theme.spacing(2),
+	},
+	appBar: {
+		zIndex: theme.zIndex.drawer + 1,
 	},
 	menuButton: {
 		marginRight: theme.spacing(2),
@@ -206,7 +209,7 @@ const Header = ({ history, updateTheme }) => {
 				isAuthenticated().user ? (
 					[
 						<MenuItem onClick={handleMenuClose} key="UserDashboard">
-							Dashboard
+							<Link to="/dashboard">Dashboard</Link>
 						</MenuItem>,
 						<MenuItem
 							onClick={() => {
@@ -225,7 +228,7 @@ const Header = ({ history, updateTheme }) => {
 				) : (
 					[
 						<MenuItem onClick={handleMenuClose} key="AgencyDashboard">
-							Dashboard
+							<Link to="/agency/dashboard">Dashboard</Link>
 						</MenuItem>,
 						<MenuItem
 							onClick={() => {
@@ -315,11 +318,7 @@ const Header = ({ history, updateTheme }) => {
 							updateTheme("dark");
 						}}
 					>
-						<LensIcon
-							style={{
-								color: "black",
-							}}
-						/>
+						<LensIcon style={{ color: "black" }} />
 					</IconButton>
 					<IconButton
 						aria-label="use light theme"
@@ -347,7 +346,7 @@ const Header = ({ history, updateTheme }) => {
 	return (
 		<div className={classes.grow}>
 			<HideOnScroll>
-				<AppBar>
+				<AppBar className={classes.appBar}>
 					<Toolbar>
 						<IconButton
 							edge="start"
@@ -361,6 +360,7 @@ const Header = ({ history, updateTheme }) => {
 						<Typography className={classes.title} variant="h6" noWrap>
 							Material-UI
 						</Typography>
+						<div className={classes.grow} />
 						<div className={classes.search}>
 							<div className={classes.searchIcon}>
 								<SearchIcon />
@@ -374,7 +374,6 @@ const Header = ({ history, updateTheme }) => {
 								inputProps={{ "aria-label": "search" }}
 							/>
 						</div>
-						<div className={classes.grow} />
 
 						{/* theme switcher */}
 						<div className={classes.themeButton}>

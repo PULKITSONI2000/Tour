@@ -9,7 +9,7 @@ import SignUpPage from "../pages/user/SignUpPage";
 import AgencySignUpPage from "../pages/agency/AgencySignUpPage";
 import AgencySignInPage from "../pages/agency/AgencySignInPage";
 import BaseLayout from "./components/BaseLayout";
-import AgencyDashboard from "../pages/agency/AgencyDashboard";
+import AgencyDashboardPage from "../pages/agency/AgencyDashboardPage";
 import { PrivateAgencyRoutes } from "../services/routerServices";
 
 const router = ({ theme }) => {
@@ -30,7 +30,7 @@ const router = ({ theme }) => {
 						<PrivateAgencyRoutes
 							path="/agency/dashboard"
 							exact
-							component={AgencyDashboard}
+							component={AgencyDashboardPage}
 						/>
 
 						{/* /// Other routes */}
