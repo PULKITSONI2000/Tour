@@ -110,7 +110,6 @@ const AgencyProfile = ({ drawer, setDrawer }) => {
 	const getAgencyDetails = async () => {
 		try {
 			const a = await getAgency(isAuthenticated().agency._id);
-			// console.log(a.data);
 			setAgency(a.data);
 		} catch (error) {
 			console.error(error);
@@ -211,7 +210,7 @@ const AgencyProfile = ({ drawer, setDrawer }) => {
 													setDrawer({
 														...drawer,
 														view: "Details",
-														details: { show: "edit", data: agency },
+														details: { show: "Edit Profile", data: agency },
 													})
 												}
 											/>
@@ -224,7 +223,7 @@ const AgencyProfile = ({ drawer, setDrawer }) => {
 													setDrawer({
 														...drawer,
 														view: "Details",
-														details: { show: "view", data: { agency } },
+														details: { show: "View Profile", data: agency },
 													})
 												}
 											/>

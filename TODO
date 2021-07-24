@@ -34,6 +34,7 @@
 /// reminder
 
     Skeleton - AgencyProfile 
+	uploadImageUrl - AgencyDetails
 
 
 /// Note Pad

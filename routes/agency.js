@@ -38,7 +38,6 @@ router.put(
 	"/agency/update/:agencyId",
 	isSignedIn,
 	isAuthenticated,
-	isAgencyVarified,
 	[
 		check(
 			"agencyName",
@@ -53,34 +52,41 @@ router.put(
 		).isLength({
 			max: 1024,
 		}),
-		body("agencyAvatarUrl").custom((value) => {
-			if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
-				throw new Error(`${value} is not a imageURL`);
-			}
+		// body("agencyAvatarUrl").custom((value) => {
+		// 	if (!value.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp)$/gi)) {
+		// 		throw new Error(`${value} is not a imageURL`);
+		// 	}
 
-			// Indicates the success of this synchronous custom validator
-			return true;
+		// 	// Indicates the success of this synchronous custom validator
+		// 	return true;
+		// }),
+		check("agencyAvatarUrl", "You can not update your avatar here").isLength({
+			max: 0,
+		}),
+		// body("password").custom((value) => {
+		// 	if (
+		// 		!(
+		// 			/[a-z]/g.test(value) &&
+		// 			/[A-Z]/g.test(value) &&
+		// 			/[0-9]/g.test(value) &&
+		// 			/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
+		// 			value.length > 6
+		// 		)
+		// 	) {
+		// 		throw new Error(
+		// 			`Password should contain at least one of all small latter, capital latter, digit, symbole`
+		// 		);
+		// 	}
+
+		// 	return true;
+		// }),
+		check("password", "You can not change password here").isLength({
+			max: 0,
 		}),
 		check("email", "Email should be in email formet")
 			.isEmail()
 			.normalizeEmail(),
-		body("password").custom((value) => {
-			if (
-				!(
-					/[a-z]/g.test(value) &&
-					/[A-Z]/g.test(value) &&
-					/[0-9]/g.test(value) &&
-					/[!$@#%&*()\-_)\\/?<>]/g.test(value) &&
-					value.length > 6
-				)
-			) {
-				throw new Error(
-					`Password should contain at least one of all small latter, capital latter, digit, symbole`
-				);
-			}
 
-			return true;
-		}),
 		check(
 			"phone",
 			"Phone Number should be valid Mobile Number"

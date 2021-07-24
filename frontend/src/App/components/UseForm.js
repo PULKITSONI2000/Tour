@@ -39,7 +39,10 @@ const useStyles = makeStyles((theme) => ({
 		alignItems: "center",
 		// minHeight: "100%",
 
-		"& .MuiFormControl-root": { margin: theme.spacing(2), width: "80%" },
+		"& .MuiFormControl-root": {
+			margin: theme.spacing(2),
+			width: "80%",
+		},
 	},
 }));
 

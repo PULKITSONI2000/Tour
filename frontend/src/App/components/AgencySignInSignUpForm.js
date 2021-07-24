@@ -144,7 +144,7 @@ const AgencySignInSignUp = ({ signInSignUp, next = () => {} }) => {
 		}
 		if ("phone" in fieldValues) {
 			temp.phone = fieldValues.phone
-				? fieldValues.phone.match(/^(\+[0-9]{2}[-. ])?[0-9]{10}$/gi)
+				? String(fieldValues.phone).match(/^(\+[0-9]{2}[-. ])?[0-9]{10}$/gi)
 					? ""
 					: "Phone Number must be in 10 digit"
 				: "phone is required";
