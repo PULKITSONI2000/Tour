@@ -2,7 +2,7 @@ import { createMuiTheme } from "@material-ui/core";
 
 import { UPDATE_THEME } from "../action/action-type";
 
-const initialTheme = "light";
+const initialTheme = "dark";
 
 const themes = {
 	dark: {

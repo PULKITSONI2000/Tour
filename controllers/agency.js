@@ -4,6 +4,13 @@ const { validationResult } = require("express-validator");
 // param
 exports.getAgencyById = (req, res, next, id) => {
 	Agency.findById(id)
+		// FIXME:  	populate booking
+		// .populate({
+		// 	path: "bookings",
+		// 	select: "_id status bookedOn startingDate endingDate tourId",
+		// 	populate: [{ path: "tourId" }],
+		// })
+		// .populate("bookings", "_id status bookedOn startingDate endingDate tourId")
 		.populate("tourProvides", "_id tourTitle images")
 		.exec((err, agency) => {
 			if (err || !agency) {

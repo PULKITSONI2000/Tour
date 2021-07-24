@@ -1,50 +1,25 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
+import { Container } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		flexGrow: 1,
-	},
-	paper: {
-		padding: theme.spacing(2),
-		textAlign: "center",
-		color: theme.palette.text.secondary,
+	ContainerRoot: {
+		marginTop: theme.spacing(4),
+		[theme.breakpoints.down("lg")]: {
+			maxWidth: "95%",
+		},
 	},
 }));
 
-const AgencyDetails = () => {
+const AgencyDetails = ({ drawer, setDrawer }) => {
 	const classes = useStyles();
-
+	{
+		console.log("Edit", drawer);
+	}
 	return (
-		<div>
-			<div className={classes.root}>
-				<Grid container spacing={3} direction={"row-reverse"}>
-					<Grid item xs={12}>
-						<Paper className={classes.paper}>xs=12</Paper>
-					</Grid>
-					<Grid item xs={6}>
-						<Paper className={classes.paper}>xs=6 1</Paper>
-					</Grid>
-					<Grid item xs={6}>
-						<Paper className={classes.paper}>xs=6 2</Paper>
-					</Grid>
-					<Grid item xs={3}>
-						<Paper className={classes.paper}>xs=3 1</Paper>
-					</Grid>
-					<Grid item xs={3}>
-						<Paper className={classes.paper}>xs=3 2</Paper>
-					</Grid>
-					<Grid item xs={3}>
-						<Paper className={classes.paper}>xs=3 3</Paper>
-					</Grid>
-					<Grid item xs={3}>
-						<Paper className={classes.paper}>xs=3 4</Paper>
-					</Grid>
-				</Grid>
-			</div>
-		</div>
+		<Container maxWidth="lg" className={classes.ContainerRoot}>
+			<div></div>
+		</Container>
 	);
 };
 

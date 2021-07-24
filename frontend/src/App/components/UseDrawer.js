@@ -15,30 +15,6 @@ import { List, ListItem } from "@material-ui/core";
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
-	// root: {
-	// 	display: "flex",
-	// },
-	// appBar: {
-	// 	zIndex: theme.zIndex.drawer + 1,
-	// 	transition: theme.transitions.create(["width", "margin"], {
-	// 		easing: theme.transitions.easing.sharp,
-	// 		duration: theme.transitions.duration.leavingScreen,
-	// 	}),
-	// },
-	// appBarShift: {
-	// 	marginLeft: drawerWidth,
-	// 	width: `calc(100% - ${drawerWidth}px)`,
-	// 	transition: theme.transitions.create(["width", "margin"], {
-	// 		easing: theme.transitions.easing.sharp,
-	// 		duration: theme.transitions.duration.enteringScreen,
-	// 	}),
-	// },
-	// menuButton: {
-	// 	marginRight: 36,
-	// },
-	// hide: {
-	// 	display: "none",
-	// },
 	drawer: {
 		background: theme.palette.background.paper,
 		width: drawerWidth,
@@ -77,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
 	// },
 }));
 
-const UseDrawer = (initialDrawer = { open: true, section: "" }) => {
+const UseDrawer = (initialDrawer = { open: true, view: "" }) => {
 	const [drawer, setDrawer] = useState(initialDrawer);
 	return { drawer, setDrawer };
 };
@@ -112,7 +88,7 @@ const Drawer = ({ drawer, setDrawer, DrawerList }) => {
 								key={`listItem-${itemIndex}`}
 								button
 								onClick={() => {
-									setDrawer({ ...drawer, section: item.text });
+									setDrawer({ ...drawer, view: item.text });
 								}}
 							>
 								<ListItemIcon key={`listItemIcon-${itemIndex}`}>

@@ -36,14 +36,12 @@ const useStyles = makeStyles((theme) => ({
 	}),
 }));
 
-const SwitchSection = (section) => {
-	switch (section) {
-		case "":
-			return <AgencyProfile />;
+const SwitchSection = (drawer, setDrawer) => {
+	switch (drawer.view) {
 		case "Profile":
-			return <AgencyProfile />;
+			return <AgencyProfile drawer={drawer} setDrawer={setDrawer} />;
 		case "Details":
-			return <AgencyDetails />;
+			return <AgencyDetails drawer={drawer} setDrawer={setDrawer} />;
 		case "Tour":
 			return <AgencyTour />;
 		case "AddTour":
@@ -55,12 +53,19 @@ const SwitchSection = (section) => {
 		case "InboxNotification":
 			return <AgencyInbox />;
 		default:
-			return <h1>Error</h1>;
+			return <AgencyProfile drawer={drawer} setDrawer={setDrawer} />;
 	}
 };
 
-const AgencyDashboardPage = () => {
-	const { drawer, setDrawer } = UseDrawer({ open: true, section: "" });
+const AgencyDashboardPage = ({
+	view = "Profile",
+	details = { show: "", data: {} },
+}) => {
+	const { drawer, setDrawer } = UseDrawer({
+		open: true,
+		view: view || "",
+		details: details || { show: "", data: {} },
+	});
 	const classes = useStyles({ open: drawer.open });
 
 	const DrawerList = [
@@ -87,7 +92,7 @@ const AgencyDashboardPage = () => {
 		<div className={classes.containerRoot}>
 			<Drawer drawer={drawer} setDrawer={setDrawer} DrawerList={DrawerList} />
 
-			<main>{SwitchSection(drawer.section)}</main>
+			<main>{SwitchSection(drawer, setDrawer)}</main>
 		</div>
 	);
 };
